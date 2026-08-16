@@ -1,0 +1,44 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  14
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+Build  : 14-7b05503f98a8
+Exec   : foamPostProcess -solver incompressibleFluid -func yPlus -latestTime
+Date   : Aug 15 2026
+Time   : 06:54:19
+Host   : "Chocological"
+PID    : 22003
+I/O    : uncollated
+Case   : /home/gongx/OpenFOAM/gongx14/run/cylinderKarmanRe200_trueD_20260815_0216
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 10)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 10
+
+
+Constructing functionObjects from system/functions
+    Selecting yPlus with name yPlus
+Time = 10s
+
+Selecting solver incompressibleFluid
+
+Selecting viscosity model constant
+
+Selecting momentum transport model type laminar
+    Selecting laminar stress model Stokes
+Courant Number mean: 3.8151008e-05 max: 0.0048296801
+yPlus yPlus write:
+    writing object yPlus
+    patch cylinder y+ : min = 0.0019392295, max = 0.02341098, average = 0.011585331
+
+
+End
+

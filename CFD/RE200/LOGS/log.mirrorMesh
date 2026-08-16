@@ -1,0 +1,43 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  14
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+Build  : 14-7b05503f98a8
+Exec   : mirrorMesh -overwrite
+Date   : Aug 15 2026
+Time   : 02:17:03
+Host   : "Chocological"
+PID    : 21411
+I/O    : uncollated
+Case   : /home/gongx/OpenFOAM/gongx14/run/cylinderKarmanRe200_trueD_20260815_0216
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 10)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Deprecated option 'overwrite' specified, this is now the default behaviour
+
+Reading "mirrorMeshDict"
+
+Creating new library in "dynamicCode/_d1c4b8aa15e0e91f5b113cfcda4118dbfbd2d6f5/platforms/linux64GccDPInt32Opt/lib/libcodeStream_d1c4b8aa15e0e91f5b113cfcda4118dbfbd2d6f5.so"
+    Copying "/opt/openfoam14/etc/codeTemplates/dynamicCode/codeStreamTemplate.C" to "/home/gongx/OpenFOAM/gongx14/run/cylinderKarmanRe200_trueD_20260815_0216/dynamicCode/_d1c4b8aa15e0e91f5b113cfcda4118dbfbd2d6f5/codeStreamTemplate.C"
+wmake libso /home/gongx/OpenFOAM/gongx14/run/cylinderKarmanRe200_trueD_20260815_0216/dynamicCode/_d1c4b8aa15e0e91f5b113cfcda4118dbfbd2d6f5
+    ln: ./lnInclude
+    wmkdep: codeStreamTemplate.C
+    Ctoo: codeStreamTemplate.C
+    ld: /home/gongx/OpenFOAM/gongx14/run/cylinderKarmanRe200_trueD_20260815_0216/dynamicCode/_d1c4b8aa15e0e91f5b113cfcda4118dbfbd2d6f5/../platforms/linux64GccDPInt32Opt/lib/libcodeStream_d1c4b8aa15e0e91f5b113cfcda4118dbfbd2d6f5.so
+Mirroring points. Old points: 5626 New points: 11014
+Mirroring faces. Old faces: 10894 New faces: 21671
+Mirroring patches. Old patches: 4 New patches: 4
+Mirroring cells.  Old cells: 2694 New cells: 5388
+Mirroring cell shapes.
+
+Creating new mesh
+Writing mirrored mesh
+End

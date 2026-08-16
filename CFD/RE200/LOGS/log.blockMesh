@@ -1,0 +1,105 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  14
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+Build  : 14-7b05503f98a8
+Exec   : blockMesh
+Date   : Aug 15 2026
+Time   : 02:17:02
+Host   : "Chocological"
+PID    : 21217
+I/O    : uncollated
+Case   : /home/gongx/OpenFOAM/gongx14/run/cylinderKarmanRe200_trueD_20260815_0216
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 10)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Reading "blockMeshDict"
+
+Creating block mesh from
+    "system/blockMeshDict"
+Creating new library in "dynamicCode/_84f4f0891ed8b25c852d8ee47e2080b7176b1139/platforms/linux64GccDPInt32Opt/lib/libcodeBlock_84f4f0891ed8b25c852d8ee47e2080b7176b1139.so"
+    Copying "/opt/openfoam14/etc/codeTemplates/dynamicCode/codeBlockTemplate.C" to "/home/gongx/OpenFOAM/gongx14/run/cylinderKarmanRe200_trueD_20260815_0216/dynamicCode/_84f4f0891ed8b25c852d8ee47e2080b7176b1139/codeBlockTemplate.C"
+wmake libso /home/gongx/OpenFOAM/gongx14/run/cylinderKarmanRe200_trueD_20260815_0216/dynamicCode/_84f4f0891ed8b25c852d8ee47e2080b7176b1139
+    ln: ./lnInclude
+    wmkdep: codeBlockTemplate.C
+    Ctoo: codeBlockTemplate.C
+    ld: /home/gongx/OpenFOAM/gongx14/run/cylinderKarmanRe200_trueD_20260815_0216/dynamicCode/_84f4f0891ed8b25c852d8ee47e2080b7176b1139/../platforms/linux64GccDPInt32Opt/lib/libcodeBlock_84f4f0891ed8b25c852d8ee47e2080b7176b1139.so
+Creating block edges
+No non-planar block faces defined
+Creating topology blocks
+Creating topology patches
+
+Creating block mesh topology
+
+Basic statistics
+    Number of internal faces : 8
+    Number of boundary faces : 26
+    Number of defined boundary faces : 26
+    Number of undefined boundary faces : 0
+
+Checking topology
+Creating block offsets
+Creating merge list .
+
+Creating polyMesh from blockMesh
+Creating patches
+Creating cells
+Creating points with scale 1
+    Block 0 cell size :
+        i : 5.8224769e-07 .. 0.00058224769
+        j : 2.2642134e-05 .. 4.5272659e-05 2.2668501e-05 .. 4.5325379e-05 2.2642134e-05 .. 4.5272659e-05 2.2668501e-05 .. 4.5325379e-05 
+        k : 0.001
+    Block 1 cell size :
+        i : 5.8224769e-07 .. 0.00058224769
+        j : 4.9067674e-05 .. 4.9067674e-05 4.9124813e-05 .. 4.9124813e-05 4.9067674e-05 .. 4.9067674e-05 4.9124813e-05 .. 4.9124813e-05 
+        k : 0.001
+    Block 2 cell size :
+        i : 0.00063361212 .. 0.0016473915 0.00063081151 .. 0.0016538704 0.00063361212 .. 0.0016473915 0.00063081151 .. 0.0016538704 
+        j : 0.00018113707 .. 0.00036218127 0.00019602845 .. 0.00035875965 0.00018113707 .. 0.00036218127 0.00019602845 .. 0.00035875965 
+        k : 0.001
+    Block 3 cell size :
+        i : 0.0018770065 .. 0.011262039
+        j : 0.00043246987 .. 0.00086493974
+        k : 0.001
+    Block 4 cell size :
+        i : 0.00075180457 .. 0.037590229
+        j : 0.00039254139 .. 0.00039254139 0.00046632 .. 0.00046632 0.00039254139 .. 0.00039254139 0.00046632 .. 0.00046632 
+        k : 0.001
+    Block 5 cell size :
+        i : 0.00091192577 .. 0.0023708178 0.00090944039 .. 0.0023676796 0.00091192577 .. 0.0023708178 0.00090944039 .. 0.0023676796 
+        j : 0.00075180457 .. 0.037590229 0.00074707487 .. 0.037353744 0.00075180457 .. 0.037590229 0.00074707487 .. 0.037353744 
+        k : 0.001
+    Block 6 cell size :
+        i : 0.0018770065 .. 0.011262039
+        j : 0.0006656603 .. 0.033283015
+        k : 0.001
+
+No patch pairs to merge
+
+Writing polyMesh
+----------------
+Mesh Information
+----------------
+  boundingBox: (-0.1 -4.9618655e-18 -0.0005) (0.1 0.1 0.0005)
+  nPoints: 5626
+  nCells: 2694
+  nFaces: 10894
+  nInternalFaces: 5270
+----------------
+Patches
+----------------
+  patch 0 (start: 5270 size: 46) name: inlet
+  patch 1 (start: 5316 size: 33) name: outlet
+  patch 2 (start: 5349 size: 40) name: cylinder
+  patch 3 (start: 5389 size: 5505) name: frontAndBack
+
+End
+
