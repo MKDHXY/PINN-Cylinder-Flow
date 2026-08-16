@@ -1,0 +1,3 @@
+1.AVI 转 GIF  AVI to GIF
+
+2.制造训练集，验证集，测试集的matlab代码，输入csv从openfoam来，输出csv或mat，    This is MATLAB code for creating training, validation, and test sets. It takes a CSV file from OpenFOAM as input and outputs either a CSV or a MATLAB file.
