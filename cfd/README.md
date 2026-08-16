@@ -1,7 +1,20 @@
 # CFD
 
-CFD setup and reproducible simulation workflow.
+CFD results are organized primarily by Reynolds number. Each Reynolds-number case should keep its own simulation setup and lightweight visualization outputs together.
 
-- `re100_laminar/`: validation case at Re = 100.
-- `re3900_urans/`: main 2D URANS case at Re = 3900.
-- Keep raw transient flow-field output outside GitHub; track setup, scripts, and small processed outputs only.
+Suggested structure:
+
+- `re100/`
+  - `case/` — CFD setup files
+  - `vtk/` — selected VTK exports
+  - `gifs/` — animations generated from VTK/field data
+  - `plots/` — drag/lift/pressure/velocity plots
+  - `processed/` — compact CSV or probe data
+- `re3900/`
+  - `case/`
+  - `vtk/`
+  - `gifs/`
+  - `plots/`
+  - `processed/`
+
+Do not commit very large raw transient CFD fields or every time-step VTK file. Keep only selected/processed outputs in GitHub and store full raw simulation data on local/HPC/cloud storage.
