@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.ipynb_checkpoints/
+
+# ML checkpoints and experiment output
+checkpoints/
+runs/
+wandb/
+*.pt
+*.pth
+*.ckpt
+
+# CFD/OpenFOAM generated output
+processor*/
+postProcessing/
+log.*
+*.foam
+*.vtk
+*.vtu
+*.vtp
+*.case
+*.ensight
+
+# Common transient time directories (keep setup directories such as 0/ manually if required)
+[1-9]*/
+0.[0-9]*/
+
+# Large/raw project data
+data/raw/
+cfd/**/raw_output/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
