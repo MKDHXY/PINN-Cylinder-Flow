@@ -1,0 +1,707 @@
+# RE200 — 2D Unsteady Flow Past a Circular Cylinder
+
+## 1. Case Overview
+
+This case contains the CFD reference solution for two-dimensional, incompressible, unsteady flow past a circular cylinder at:
+
+**Re = 200**
+
+The CFD results are used to generate reference velocity and pressure data for physics-informed neural network (PINN) training, validation, and sparse-data studies.
+
+The simulation was performed using **OpenFOAM 14**.
+
+---
+
+## 2. Physical Parameters
+
+| Parameter                | Symbol |      Value | Unit  |
+| ------------------------ | ------ | ---------: | ----- |
+| Reynolds number          | Re     |        200 | –     |
+| Cylinder diameter        | D      |      0.001 | m     |
+| Reference/inlet velocity | U∞     |      0.015 | m/s   |
+| Kinematic viscosity      | ν      | 7.5 × 10⁻⁸ | m²/s  |
+| Reference density        | ρ      |      1.225 | kg/m³ |
+
+The Reynolds number is defined as:
+
+[
+Re=\frac{U_\infty D}{\nu}
+]
+
+For this case:
+
+[
+Re=
+\frac{0.015\times0.001}
+{7.5\times10^{-8}}
+=200
+]
+
+The kinematic viscosity is defined in `constant/physicalProperties`.
+
+---
+
+## 3. Flow Physics
+
+The simulation is:
+
+* Two-dimensional
+* Incompressible
+* Unsteady
+* Laminar
+
+The OpenFOAM momentum transport model is explicitly set to:
+
+`simulationType laminar`
+
+Although turbulence-model configuration entries are retained in the case files, they are not active for the RE200 simulation.
+
+The governing equations corresponding to the PINN formulation are the incompressible Navier–Stokes equations.
+
+### Continuity
+
+[
+\frac{\partial u}{\partial x}
++
+\frac{\partial v}{\partial y}
+=0
+]
+
+### x-momentum
+
+[
+\frac{\partial u}{\partial t}
++
+u\frac{\partial u}{\partial x}
++
+v\frac{\partial u}{\partial y}
+==============================
+
+-\frac{\partial p}{\partial x}
++
+\nu
+\left(
+\frac{\partial^2u}{\partial x^2}
++
+\frac{\partial^2u}{\partial y^2}
+\right)
+]
+
+### y-momentum
+
+[
+\frac{\partial v}{\partial t}
++
+u\frac{\partial v}{\partial x}
++
+v\frac{\partial v}{\partial y}
+==============================
+
+-\frac{\partial p}{\partial y}
++
+\nu
+\left(
+\frac{\partial^2v}{\partial x^2}
++
+\frac{\partial^2v}{\partial y^2}
+\right)
+]
+
+---
+
+## 4. Important Pressure Convention
+
+**The OpenFOAM pressure variable `p` is kinematic pressure, not pressure in Pa.**
+
+Its unit is:
+
+[
+[p]=m^2/s^2
+]
+
+The `p` field is explicitly defined as `kinematicPressure`.
+
+Therefore, the PINN dataset uses:
+
+| Variable | Meaning            | Unit  |
+| -------- | ------------------ | ----- |
+| x        | x coordinate       | m     |
+| y        | y coordinate       | m     |
+| t        | physical time      | s     |
+| u        | x velocity         | m/s   |
+| v        | y velocity         | m/s   |
+| p        | kinematic pressure | m²/s² |
+
+**Do not interpret the supplied `p` values as pressure in Pa.**
+
+---
+
+## 5. Geometry
+
+Cylinder diameter:
+
+[
+D=0.001;m
+]
+
+Cylinder centre:
+
+[
+(x,y)=(0,0)
+]
+
+The mesh bounding box is:
+
+[
+(-0.1,-0.1,-0.0005)
+]
+
+to
+
+[
+(0.1,0.1,0.0005);m
+]
+
+Therefore, in terms of cylinder diameter:
+
+[
+x/D=-100\rightarrow100
+]
+
+[
+y/D=-100\rightarrow100
+]
+
+The spanwise direction contains one computational cell and the front/back boundaries are treated as `empty`, giving a two-dimensional solution.
+
+---
+
+## 6. Mesh
+
+Mesh generator:
+
+**blockMesh**
+
+Mesh type:
+
+**Structured multi-block hexahedral mesh**
+
+Current mesh scaling factor:
+
+**3**
+
+The mesh contains:
+
+| Mesh quantity | Value |
+| ------------- | ----: |
+| Total cells   |  5388 |
+| Hexahedra     |  5388 |
+| Prisms        |     0 |
+| Pyramids      |     0 |
+| Tetrahedra    |     0 |
+| Polyhedra     |     0 |
+| Mesh regions  |     1 |
+
+The original `blockMeshDict` also identifies scaling factor 3 as the 5388-cell mesh.
+
+### Boundary faces
+
+| Patch        | Faces | Points |
+| ------------ | ----: | -----: |
+| inlet        |    92 |    186 |
+| outlet       |    66 |    134 |
+| cylinder     |    80 |    160 |
+| frontAndBack | 10776 |  11014 |
+
+---
+
+## 7. Mesh Quality
+
+OpenFOAM `checkMesh` reports:
+
+**Mesh OK**
+
+Important mesh-quality quantities are:
+
+| Quantity                  |            Value |
+| ------------------------- | ---------------: |
+| Maximum cell openness     |    1.783 × 10⁻¹⁵ |
+| Maximum aspect ratio      |          47.4615 |
+| Minimum face area         | 1.319 × 10⁻¹¹ m² |
+| Maximum face area         |  3.748 × 10⁻⁴ m² |
+| Minimum cell volume       | 1.319 × 10⁻¹⁴ m³ |
+| Maximum cell volume       |  3.748 × 10⁻⁷ m³ |
+| Total mesh volume         |  3.568 × 10⁻⁵ m³ |
+| Maximum non-orthogonality |          41.662° |
+| Average non-orthogonality |           6.899° |
+| Maximum skewness          |           0.8669 |
+
+All topology and geometry checks passed.
+
+---
+
+## 8. Near-Wall Resolution
+
+The cylinder-wall y+ values at:
+
+[
+t=10;s
+]
+
+are:
+
+| y+ quantity |   Value |
+| ----------- | ------: |
+| Minimum y+  | 0.00194 |
+| Mean y+     | 0.01159 |
+| Maximum y+  | 0.02341 |
+
+These values are taken directly from the OpenFOAM `yPlus` post-processing output.
+
+Because this RE200 case is laminar, y+ is primarily reported here as an indication of near-wall mesh resolution rather than as a turbulence-wall-function requirement.
+
+---
+
+## 9. Velocity Boundary Conditions
+
+Reference inlet velocity:
+
+[
+U_\infty=0.015;m/s
+]
+
+### Inlet
+
+Fixed velocity:
+
+[
+u=0.015;m/s
+]
+
+[
+v=0
+]
+
+OpenFOAM:
+
+`fixedValue`
+
+### Outlet
+
+OpenFOAM:
+
+`zeroGradient`
+
+### Cylinder wall
+
+No-slip condition:
+
+[
+u=0
+]
+
+[
+v=0
+]
+
+OpenFOAM:
+
+`noSlip`
+
+The velocity boundary conditions are defined in the `U` field.
+
+---
+
+## 10. Pressure Boundary Conditions
+
+The reference pressure is:
+
+[
+p_{ref}=0
+]
+
+### Inlet
+
+[
+\frac{\partial p}{\partial n}=0
+]
+
+OpenFOAM:
+
+`zeroGradient`
+
+### Outlet
+
+[
+p=0
+]
+
+OpenFOAM:
+
+`fixedValue`
+
+### Cylinder wall
+
+[
+\frac{\partial p}{\partial n}=0
+]
+
+OpenFOAM:
+
+`zeroGradient`
+
+These conditions are defined in the `p` field.
+
+---
+
+## 11. Initial Condition and Vortex-Shedding Perturbation
+
+The base velocity used during field initialisation is:
+
+[
+U=(0.015,0,0);m/s
+]
+
+A small transverse velocity perturbation is introduced downstream of the cylinder to break symmetry and initiate vortex shedding.
+
+Perturbation region:
+
+[
+x=0.0006\rightarrow0.004;m
+]
+
+[
+y=0.00005\rightarrow0.0005;m
+]
+
+Velocity inside the perturbation region:
+
+[
+U=(0.015,0.006,0);m/s
+]
+
+This perturbation is defined in `setFieldsDict`.
+
+---
+
+## 12. CFD Solver
+
+OpenFOAM version:
+
+**OpenFOAM 14**
+
+Application:
+
+`foamRun`
+
+Fluid solver:
+
+`incompressibleFluid`
+
+The solver configuration is specified in `controlDict`.
+
+### Pressure–Velocity Coupling
+
+The transient simulation uses the:
+
+**PIMPLE algorithm**
+
+with:
+
+* `momentumPredictor = no`
+* `nOuterCorrectors = 2`
+* `nCorrectors = 2`
+* `nNonOrthogonalCorrectors = 0`
+
+---
+
+## 13. Numerical Schemes
+
+### Time discretisation
+
+`Euler`
+
+### Gradient
+
+`Gauss linear`
+
+The velocity gradient uses a cell-limited formulation.
+
+### Velocity convection
+
+`Gauss linearUpwind limited`
+
+### Laplacian
+
+`Gauss linear corrected`
+
+### Interpolation
+
+`linear`
+
+### Surface-normal gradient
+
+`corrected`
+
+---
+
+## 14. Linear Solvers
+
+### Pressure
+
+Solver:
+
+`PCG`
+
+Preconditioner:
+
+`DIC`
+
+Tolerance:
+
+[
+10^{-8}
+]
+
+Relative tolerance:
+
+[
+0.1
+]
+
+### Velocity
+
+Solver:
+
+`smoothSolver`
+
+Smoother:
+
+`symGaussSeidel`
+
+Tolerance:
+
+[
+10^{-10}
+]
+
+Relative tolerance:
+
+[
+0.1
+]
+
+---
+
+## 15. Time Settings
+
+| Parameter              |      Value |
+| ---------------------- | ---------: |
+| Start time             |        0 s |
+| End time               |       10 s |
+| Maximum timestep       | 1 × 10⁻⁵ s |
+| Adaptive timestep      |        Yes |
+| Maximum Courant number |        0.3 |
+| Output interval        |     0.05 s |
+
+The timestep is automatically adjusted subject to:
+
+[
+Co_{max}=0.3
+]
+
+and:
+
+[
+\Delta t_{max}=10^{-5};s
+]
+
+---
+
+## 16. Aerodynamic Quantities
+
+Aerodynamic forces are evaluated on the cylinder.
+
+The following quantities are available for validation:
+
+* Drag force
+* Lift force
+* Drag coefficient (C_D)
+* Lift coefficient (C_L)
+* Moment coefficient
+* Vortex shedding frequency
+* Strouhal number
+
+The force-coefficient reference directions are:
+
+Drag:
+
+[
+(1,0,0)
+]
+
+Lift:
+
+[
+(0,1,0)
+]
+
+Reference length:
+
+[
+L_{ref}=D
+]
+
+The force calculation uses:
+
+[
+\rho=1.225;kg/m^3
+]
+
+for dimensional force reconstruction.
+
+---
+
+## 17. PINN Dataset
+
+PINN-ready data are stored under:
+
+`DATA/RE200/PINN_READY/`
+
+The full CFD dataset contains:
+
+`x, y, t, u, v, p`
+
+The intended PINN mapping is:
+
+[
+(x,y,t)\rightarrow(u,v,p)
+]
+
+The current full-field dataset is:
+
+`Re200_full_xyt_uvp.mat`
+
+### Dimensional PINN reference parameters
+
+If the PINN directly uses dimensional CFD data:
+
+[
+D=0.001;m
+]
+
+[
+U_\infty=0.015;m/s
+]
+
+[
+\nu=7.5\times10^{-8};m^2/s
+]
+
+[
+Re=200
+]
+
+### Important
+
+**No nondimensionalisation should be assumed unless it is explicitly implemented in the PINN preprocessing code.**
+
+If nondimensional variables are used, the convention should be documented explicitly, for example:
+
+[
+x^*=\frac{x}{D},
+\qquad
+y^*=\frac{y}{D}
+]
+
+[
+t^*=\frac{tU_\infty}{D}
+]
+
+[
+u^*=\frac{u}{U_\infty},
+\qquad
+v^*=\frac{v}{U_\infty}
+]
+
+[
+p^*=\frac{p}{U_\infty^2}
+]
+
+---
+
+## 18. Quantities for CFD–PINN Comparison
+
+PINN predictions should ultimately be evaluated against the CFD solution using:
+
+* Velocity fields (u(x,y,t))
+* Velocity fields (v(x,y,t))
+* Kinematic pressure (p(x,y,t))
+* Mean drag coefficient
+* Time-dependent lift coefficient
+* RMS lift coefficient
+* Vortex shedding frequency
+* Strouhal number
+
+[
+St=\frac{fD}{U_\infty}
+]
+
+* Point/probe velocity histories
+* Full-field error metrics
+* Wake structure and vorticity
+* Phase and amplitude of periodic vortex shedding
+
+---
+
+## 19. Directory Structure
+
+```text
+CFD/RE200/
+├── CASE/
+│   ├── constant/
+│   └── system/
+│
+├── VTK/
+│   └── selected CFD field data
+│
+├── VTK_GIF/
+│   └── flow visualisations
+│
+├── POSTPROCESSING/
+│   └── forces, force coefficients, y+, probes, etc.
+│
+├── SCRIPTS/
+│   └── CFD processing and dataset-generation scripts
+│
+└── LOGS/
+    └── solver, checkMesh, blockMesh and post-processing logs
+
+
+DATA/RE200/
+└── PINN_READY/
+    └── PINN-ready x-y-t-u-v-p datasets
+```
+
+---
+
+## 20. Key Information for PINN Users
+
+Before training a PINN with this dataset, confirm the following:
+
+* **Re = 200**
+* **D = 0.001 m**
+* **U∞ = 0.015 m/s**
+* **ν = 7.5 × 10⁻⁸ m²/s**
+* Flow is **2D, incompressible, transient and laminar**
+* PINN variables are **x, y, t, u, v, p**
+* **p is kinematic pressure in m²/s²**
+* Cylinder wall uses the **no-slip condition**
+* Outlet pressure reference is **p = 0**
+* Current CFD mesh contains **5388 hexahedral cells**
+* Current mesh passed OpenFOAM `checkMesh`
+* CFD simulation runs from **0 to 10 s**
+* Maximum CFD timestep is **1 × 10⁻⁵ s**
+* Maximum Courant number is **0.3**
+* CFD fields are written every **0.05 s**
+* CFD data must not be assumed nondimensional unless PINN preprocessing explicitly performs nondimensionalisation
