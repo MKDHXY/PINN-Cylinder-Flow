@@ -44,3 +44,4 @@
 | Normalisation                | —                       | **Do not assume nondimensionalised**           | Any normalisation must be explicitly defined in the PINN code |
 | Main validation quantities   | —                       | (C_D,\ C_L(t),\ f,\ St,\ u,\ v,\ p)            | CFD–PINN comparison                                           |
 | Strouhal number              | (St)                    | (St = fD/U_\infty)                             | Vortex-shedding frequency metric                              |
+
