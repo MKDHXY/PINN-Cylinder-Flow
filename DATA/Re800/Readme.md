@@ -1,49 +1,60 @@
 zx
-| **Item**                     | **Symbol / Setting** | **RE800 Value**                            | **Notes for PINN**                                                   |
-| ---------------------------- | -------------------: | ------------------------------------------ | -------------------------------------------------------------------- |
-| Reynolds number              |                 (Re) | **800**                                    | Target Reynolds number                                               |
-| Cylinder diameter            |                  (D) | **0.001 m**                                | Geometric/reference length scale                                     |
-| Free-stream velocity         |           (U_\infty) | **0.015 m/s**                              | Reference velocity and inlet velocity                                |
-| Kinematic viscosity          |                (\nu) | **1.875 × 10⁻⁸ m²/s**                      | **Use this value in the dimensional PINN physics loss**              |
-| Reynolds-number definition   |  (Re=U_\infty D/\nu) | **800**                                    | (0.015\times0.001/(1.875\times10^{-8})=800)                          |
-| Flow type                    |                    — | **2D, incompressible, transient, laminar** | No turbulence model is active                                        |
-| OpenFOAM version             |                    — | **OpenFOAM 14**                            | CFD data source                                                      |
-| CFD solver                   |                    — | `foamRun` + `incompressibleFluid`          | Incompressible transient solver                                      |
-| Pressure–velocity coupling   |                    — | **PIMPLE**                                 | Same OpenFOAM incompressible transient framework                     |
-| Cylinder centre              |          ((x_c,y_c)) | **(0, 0)**                                 | Cylinder location                                                    |
-| Computational domain         |              ((x,y)) | **−0.1 to 0.1 m**                          | Approximately ((-100D)) to ((100D))                                  |
-| Mesh size                    |                    — | **5548 cells**                             | Wall-layer refined Re800 mesh                                        |
-| Mesh dimensionality          |                    — | **2D**                                     | One cell in spanwise direction; front/back are `empty`               |
-| Mesh quality                 |                    — | **Mesh OK**                                | Passed OpenFOAM `checkMesh` if using the completed wall-refined case |
-| Max aspect ratio             |                    — | **Need exact `checkMesh` value**           | Do not copy Re200 value unless confirmed from Re800 log              |
-| Max non-orthogonality        |                    — | **Need exact `checkMesh` value**           | Use Re800 `log.checkMesh` / `log.checkMesh_yplusWall`                |
-| Max skewness                 |                    — | **Need exact `checkMesh` value**           | Use Re800 `checkMesh` output                                         |
-| Cylinder (y^+)               |                    — | **Need exact Re800 yPlus output**          | Evaluate at latest time, usually (t=10,s)                            |
-| Simulation time              |                  (t) | **0–10 s**                                 | Exported CFD interval for current dataset                            |
-| Maximum CFD time step        |    (\Delta t_{\max}) | **1 × 10⁻⁵ s**                             | Internal CFD time step / maxDeltaT                                   |
-| Adaptive time stepping       |                    — | **Yes**                                    | Controlled by Courant number                                         |
-| Maximum Courant number       |          (Co_{\max}) | **0.3**                                    | CFD stability control                                                |
-| CFD output interval          |                    — | **0.05 s**                                 | Saved fields from 0 to 10 s; 201 time steps                          |
-| PINN inputs                  |                    — | **x, y, t**                                | Neural-network inputs                                                |
-| PINN outputs                 |                    — | **u, v, p**                                | Predicted flow variables                                             |
-| ((x,y)) units                |                    — | **m**                                      | Dimensional coordinates                                              |
-| (t) unit                     |                    — | **s**                                      | Physical time                                                        |
-| ((u,v)) units                |                    — | **m/s**                                    | Velocity components                                                  |
-| **Pressure (p) unit**        |                    — | **m²/s²**                                  | **Kinematic pressure, NOT pressure in Pa**                           |
-| Inlet velocity BC            |                    — | (u=0.015,\ v=0)                            | `fixedValue`                                                         |
-| Outlet velocity BC           |                    — | (\partial U/\partial n=0)                  | `zeroGradient`                                                       |
-| Cylinder velocity BC         |                    — | (u=v=0)                                    | No-slip wall                                                         |
-| Inlet pressure BC            |                    — | (\partial p/\partial n=0)                  | `zeroGradient`                                                       |
-| Outlet pressure BC           |                    — | **(p=0)**                                  | Pressure reference                                                   |
-| Cylinder pressure BC         |                    — | (\partial p/\partial n=0)                  | `zeroGradient`                                                       |
-| Base initial velocity        |                    — | (U=(0.015,0,0)) m/s                        | Initial flow condition                                               |
-| Vortex-shedding perturbation |                    — | (U=(0.015,0.006,0)) m/s                    | Local transverse perturbation used to break symmetry                 |
-| PINN mapping                 |                    — | **((x,y,t)\rightarrow(u,v,p))**            | Main learning problem                                                |
-| Dataset file                 |                    — | `Re800_0_10_xytuvp.mat`                    | Full-field CFD dataset converted from CSV                            |
-| Dataset location             |                    — | `DATA/RE800/PINN_READY/`                   | Recommended data location                                            |
-| CSV source file              |                    — | `Re800_0_10_xytuvp.csv`                    | Columns are `x,y,t,u,v,p`                                            |
-| Dataset rows                 |                    — | **1,115,148 rows**                         | (5548) cells × (201) saved time steps                                |
-| Dataset time steps           |                    — | **201**                                    | (t=0,0.05,0.10,\dots,10.00)                                          |
-| Normalisation                |                    — | **Do not assume nondimensionalised**       | Any normalisation must be explicitly defined in the PINN code        |
-| Main validation quantities   |                    — | (C_D,\ C_L(t),\ f,\ St,\ u,\ v,\ p)        | CFD–PINN comparison                                                  |
-| Strouhal number              |                 (St) | (St=fD/U_\infty)                           | Vortex-shedding frequency metric                                     |
+
+| Item / Setting                  | Re800                                            |
+| ------------------------------- | ------------------------------------------------ |
+| Case folder                     | `cylinderTRUE_Re800_yplusWallKick_20260818_0202` |
+| Reynolds number                 | **800**                                          |
+| Cylinder diameter D             | **0.001 m**                                      |
+| Cylinder radius R               | **0.0005 m**                                     |
+| Free-stream velocity U∞         | **0.015 m/s**                                    |
+| Kinematic viscosity ν           | **1.875e-08 m²/s**                               |
+| Reynolds formula                | `0.015 × 0.001 / 1.875e-08 = 800`                |
+| Flow type                       | 2D high-Re laminar-like                          |
+| Strict turbulence?              | **No**                                           |
+| Momentum transport model        | **laminar**                                      |
+| Laminar stress model            | **Stokes**                                       |
+| Solver                          | `foamRun -solver incompressibleFluid`            |
+| Time scheme                     | **Euler**                                        |
+| Pressure–velocity coupling      | **PIMPLE**                                       |
+| Base mesh                       | 成功 Re200 的 body-fitted `blockMesh`               |
+| Mesh type                       | `blockMesh` + wall-layer refinement              |
+| Base cell count                 | **5388**                                         |
+| Wall-layer refinement           | `refineWallLayer ×2`                             |
+| Expected cells after refinement | approx **5548**                                  |
+| First-layer height ratio        | approx **1/4 of Re200**                          |
+| Domain                          | `-0.1 to 0.1 m`                                  |
+| Domain in D                     | approx `-100D to 100D`                           |
+| Cylinder centre                 | `(0,0)`                                          |
+| Simulation time                 | **0–10 s**                                       |
+| Final simulated time            | **10.0 s**                                       |
+| `deltaT`                        | **1e-5 s**                                       |
+| `maxDeltaT`                     | **1e-5 s**                                       |
+| `maxCo` setting                 | **0.3**                                          |
+| Adaptive time stepping          | **yes**                                          |
+| Actual final mean Co            | **3.8217466e-05**                                |
+| Actual final max Co             | **0.0071669481**                                 |
+| Output interval                 | **0.05 s**                                       |
+| Saved time folders              | `0, 0.05, …, 10`                                 |
+| Saved time levels               | approx **201**                                   |
+| Initial base velocity           | `U=(0.015,0,0)`                                  |
+| Local perturbation velocity     | `U=(0.015,0.006,0)`                              |
+| Perturbation strength           | **v/U∞ = 40%**                                   |
+| Perturbation box                | `x=0.0006 to 0.004, y=0.00005 to 0.0005`         |
+| Inlet velocity BC               | `u=0.015, v=0`                                   |
+| Outlet velocity BC              | `zeroGradient`                                   |
+| Cylinder velocity BC            | no-slip, `u=v=0`                                 |
+| Inlet pressure BC               | `zeroGradient`                                   |
+| Outlet pressure BC              | `p=0`                                            |
+| Cylinder pressure BC            | `zeroGradient`                                   |
+| Cylinder wall faces             | **80**                                           |
+| yPlus min                       | **0.00024496881**                                |
+| yPlus mean                      | **0.009451419075**                               |
+| yPlus max                       | **0.018264272**                                  |
+| Near-wall resolution            | **非常细，y+ 全部远小于 1**                               |
+| PINN input, single Re           | `x, y, t`                                        |
+| PINN input, multi-Re            | `x, y, t, Re` 或 `x, y, t, ν`                     |
+| PINN output                     | `u, v, p`                                        |
+| Pressure unit                   | **m²/s²**                                        |
+| Validation                      | `CD, CL, St, u, v, p`                            |
+| Strouhal definition             | `St = fD/U∞`                                     |
+| Important note                  | Re800 已完成到 **10 s**；近壁和时间分辨率都非常保守                |
