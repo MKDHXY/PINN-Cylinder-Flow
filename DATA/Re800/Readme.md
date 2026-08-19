@@ -50,7 +50,7 @@ zx
 | yPlus min                       | **0.00024496881**                                |
 | yPlus mean                      | **0.009451419075**                               |
 | yPlus max                       | **0.018264272**                                  |
-| Near-wall resolution            | **非常细，y+ 全部远小于 1**                               |
+| Near-wall resolution            | **y+ <<1**                               |
 | PINN input, single Re           | `x, y, t`                                        |
 | PINN input, multi-Re            | `x, y, t, Re` 或 `x, y, t, ν`                     |
 | PINN output                     | `u, v, p`                                        |
