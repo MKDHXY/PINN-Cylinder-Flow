@@ -1,0 +1,161 @@
+clear; clc;
+
+%% 1. Select CSV file
+[fileName, folderPath] = uigetfile( ...
+    {'*.csv', 'CSV files (*.csv)'}, ...
+    'Select xytuvp CSV file', ...
+    '\\wsl$\Ubuntu\home\gongx\OpenFOAM\gongx14\run');
+
+if isequal(fileName, 0)
+    disp("No file selected. Cancelled.");
+    return;
+end
+
+csvPath = fullfile(folderPath, fileName);
+[exportDir, csvBase, ~] = fileparts(csvPath);
+matPath = fullfile(exportDir, csvBase + ".mat");
+
+fprintf("Selected CSV:\n%s\n\n", csvPath);
+fprintf("Output MAT:\n%s\n\n", matPath);
+
+%% 2. Datastore for chunked reading
+ds = tabularTextDatastore(csvPath, ...
+    "Delimiter", ",", ...
+    "ReadVariableNames", true);
+
+% CSV column order must be:
+% 1 x
+% 2 y
+% 3 t
+% 4 u
+% 5 v
+% 6 p
+ds.SelectedVariableNames = ["x", "y", "t", "u", "v", "p"];
+ds.ReadSize = 200000;
+
+%% 3. Overwrite check
+if isfile(matPath)
+    choice = questdlg( ...
+        "MAT file already exists. Overwrite?", ...
+        "Overwrite MAT?", ...
+        "Yes", "No", "No");
+
+    if ~strcmp(choice, "Yes")
+        disp("Cancelled. Existing MAT file kept.");
+        return;
+    end
+
+    delete(matPath);
+end
+
+%% 4. Create MAT file
+M = matfile(matPath, "Writable", true);
+
+M.csvPath = string(csvPath);
+M.columns = ["x", "y", "t", "u", "v", "p"];
+
+M.column_1 = "x";
+M.column_2 = "y";
+M.column_3 = "t";
+M.column_4 = "u";
+M.column_5 = "v";
+M.column_6 = "p";
+
+M.format = "data(:,1)=x, data(:,2)=y, data(:,3)=t, data(:,4)=u, data(:,5)=v, data(:,6)=p";
+M.description = "PINN-ready OpenFOAM CFD data in x,y,t,u,v,p format";
+
+%% 5. Chunked CSV to MAT conversion
+rowStart = 1;
+chunkID = 0;
+
+timeMin = inf;
+timeMax = -inf;
+allTimeValues = [];
+
+tic;
+h = waitbar(0, "Converting CSV to MAT...");
+
+while hasdata(ds)
+    T = read(ds);
+
+    % A columns:
+    % A(:,1) = x
+    % A(:,2) = y
+    % A(:,3) = t
+    % A(:,4) = u
+    % A(:,5) = v
+    % A(:,6) = p
+    A = table2array(T);
+    A = double(A);
+
+    n = size(A, 1);
+    rowEnd = rowStart + n - 1;
+
+    M.data(rowStart:rowEnd, 1:6) = A;
+
+    tChunk = A(:, 3);
+    timeMin = min(timeMin, min(tChunk));
+    timeMax = max(timeMax, max(tChunk));
+
+    allTimeValues = unique([allTimeValues; unique(tChunk)]);
+
+    chunkID = chunkID + 1;
+
+    fprintf("Chunk %d | rows %d to %d | latest t range %.8g to %.8g | elapsed %.1f s\n", ...
+        chunkID, rowStart, rowEnd, min(tChunk), max(tChunk), toc);
+
+    if isvalid(h)
+        waitbar(0.5, h, sprintf("Chunk %d | rows %d to %d", chunkID, rowStart, rowEnd));
+    end
+
+    rowStart = rowEnd + 1;
+end
+
+if isvalid(h)
+    close(h);
+end
+
+%% 6. Save summary
+totalRows = rowStart - 1;
+allTimeValues = sort(allTimeValues);
+
+nTimeSteps = numel(allTimeValues);
+totalPhysicalTime = timeMax - timeMin;
+
+M.rows = totalRows;
+M.n_time_steps = nTimeSteps;
+M.time_min = timeMin;
+M.time_max = timeMax;
+M.total_physical_time = totalPhysicalTime;
+M.time_values = allTimeValues;
+
+M.summary = sprintf( ...
+    "rows=%d, n_time_steps=%d, time_min=%.10g, time_max=%.10g, total_physical_time=%.10g", ...
+    totalRows, nTimeSteps, timeMin, timeMax, totalPhysicalTime);
+
+%% 7. Print summary
+fprintf("\n==================== DONE ====================\n");
+fprintf("MAT saved:\n%s\n\n", matPath);
+
+fprintf("Data format:\n");
+fprintf("data(:,1) = x\n");
+fprintf("data(:,2) = y\n");
+fprintf("data(:,3) = t\n");
+fprintf("data(:,4) = u\n");
+fprintf("data(:,5) = v\n");
+fprintf("data(:,6) = p\n\n");
+
+fprintf("Total rows:            %d\n", totalRows);
+fprintf("Number of time steps:  %d\n", nTimeSteps);
+fprintf("Time min:              %.10g s\n", timeMin);
+fprintf("Time max:              %.10g s\n", timeMax);
+fprintf("Total physical time:   %.10g s\n", totalPhysicalTime);
+fprintf("Elapsed conversion:    %.1f s\n", toc);
+
+disp("MAT file content:");
+whos("-file", matPath);
+
+msgbox(sprintf( ...
+    "CSV to MAT completed.\n\nRows: %d\nTime steps: %d\nTime range: %.6g to %.6g s\nTotal physical time: %.6g s\n\n%s", ...
+    totalRows, nTimeSteps, timeMin, timeMax, totalPhysicalTime, matPath), ...
+    "Done");
