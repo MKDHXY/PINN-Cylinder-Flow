@@ -14,6 +14,7 @@ https://drive.google.com/drive/folders/1hm8NB85qShjXz3FqRxCHrI7FcRkQg5Rj?usp=sha
 
 
 # PINN神经网络-二维-不稳定-圆柱绕流
+PINN神经网络二维不稳定圆柱绕流CFD
 
 利用稀疏CFD数据，对非定常二维圆柱流动进行基于物理信息的神经网络建模。
 
