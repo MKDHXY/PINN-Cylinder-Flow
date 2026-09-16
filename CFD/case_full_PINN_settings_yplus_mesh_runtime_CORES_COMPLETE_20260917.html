@@ -1,0 +1,450 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Complete OpenFOAM case settings yPlus mesh runtime cores</title><style>body{font-family:Calibri,Arial,sans-serif;max-width:1320px;margin:34px auto;color:#102a43;line-height:1.45}h1{border-bottom:4px solid #1565a9;padding-bottom:10px}h2{margin-top:38px;color:#123f6d}.ok{background:#e8f7ee;border-left:6px solid #20a464;padding:12px 16px}.note{background:#eef7ff;border-left:6px solid #1565a9;padding:12px 16px}table{border-collapse:collapse;width:100%;font-size:13px;margin:14px 0 28px}th{background:#dfe6ef;color:#08223f;text-align:left}td,th{border:1px solid #ccd6e0;padding:7px 8px;vertical-align:top}code{background:#f2f4f8;padding:2px 4px;border-radius:4px}.num{white-space:nowrap}.small{font-size:12px;color:#52606d}</style></head><body>
+<h1>Complete OpenFOAM case settings with y+, cores and runtime / 完整算例参数：y+、核心数、总耗时</h1>
+<div class="ok"><b>Complete:</b> every case now has y+, mesh quality, physical run time, actual MPI ranks and accumulated wall-clock runtime.</div>
+<div class="note">Runtime is accumulated from the final ClockTime in each <code>log.foamRun*</code> segment. MPI ranks are read from processor directories and OpenFOAM <code>nProcs</code> log entries. Core-hours = MPI ranks × wall-clock hours.</div>
+<h2>Summary / 总表</h2><table><tr><th>Case</th><th>Role</th><th>Re</th><th>Physical time</th><th>Cells</th><th>y+ min / mean / max</th><th>MPI ranks</th><th>Total wall-clock</th><th>Core-hours</th><th>Max AR</th><th>Max non-ortho</th><th>Max skew</th><th>Cd / CLrms / St</th></tr>
+<tr><td><b>M4</b><br>Qu/Jiang</td><td>baseline low-Re validation</td><td class='num'>200</td><td class='num'>0–30.0 s</td><td class='num'>28608</td><td class='num'>0.001768 / 0.017287 / 0.032562</td><td class='num'>8</td><td class='num'>6h 58m 41s (25121 s)</td><td class='num'>55.82 core-h</td><td class='num'>117.25416</td><td class='num'>46.194952</td><td class='num'>0.93374189</td><td class='num'>1.275002 / 0.430419 / 0.187983</td></tr>
+<tr><td><b>M5</b><br>TeacherSmooth</td><td>smooth-transition correction</td><td class='num'>200</td><td class='num'>0–30.0 s</td><td class='num'>38176</td><td class='num'>0.002314 / 0.027835 / 0.061275</td><td class='num'>8</td><td class='num'>8h 48m 44s (31724 s)</td><td class='num'>70.50 core-h</td><td class='num'>115.95065</td><td class='num'>46.445276</td><td class='num'>0.9968859</td><td class='num'>1.288671 / 0.435587 / 0.191449</td></tr>
+<tr><td><b>M6</b><br>Young/Ooi/Krav</td><td>O-grid plus wake strip</td><td class='num'>200</td><td class='num'>0–29.999977 s</td><td class='num'>49840</td><td class='num'>0.000804 / 0.013357 / 0.02407</td><td class='num'>8</td><td class='num'>13h 30m 10s (48610 s)</td><td class='num'>108.02 core-h</td><td class='num'>130.95665</td><td class='num'>46.673541</td><td class='num'>0.88936661</td><td class='num'>1.290354 / 0.439621 / 0.191532</td></tr>
+<tr><td><b>M7</b><br>Braza JFM</td><td>near-wake sensitivity</td><td class='num'>200</td><td class='num'>0–30.0 s</td><td class='num'>44024</td><td class='num'>0.001337 / 0.020345 / 0.03763</td><td class='num'>8</td><td class='num'>14h 0m 46s (50446 s)</td><td class='num'>112.10 core-h</td><td class='num'>125.74102</td><td class='num'>46.619023</td><td class='num'>0.91431766</td><td class='num'>1.292019 / 0.437607 / 0.192214</td></tr>
+<tr><td><b>M8</b><br>Henderson PoF</td><td>drag/St sensitivity</td><td class='num'>200</td><td class='num'>0–30.00004 s</td><td class='num'>46960</td><td class='num'>0.000995 / 0.014617 / 0.026268</td><td class='num'>8</td><td class='num'>11h 53m 6s (42786 s)</td><td class='num'>95.08 core-h</td><td class='num'>107.53576</td><td class='num'>46.576301</td><td class='num'>1.0185337</td><td class='num'>1.295103 / 0.441585 / 0.192638</td></tr>
+<tr><td><b>M9</b><br>Jackson JFM</td><td>wake-instability/onset</td><td class='num'>200</td><td class='num'>0–30.0 s</td><td class='num'>45600</td><td class='num'>0.001357 / 0.027789 / 0.058763</td><td class='num'>8</td><td class='num'>11h 39m 19s (41959 s)</td><td class='num'>93.24 core-h</td><td class='num'>97.868617</td><td class='num'>46.573914</td><td class='num'>0.93306564</td><td class='num'>1.288004 / 0.435875 / 0.191374</td></tr>
+<tr><td><b>M10</b><br>Rajani AMM</td><td>fine laminar benchmark</td><td class='num'>200</td><td class='num'>0–30.000034 s</td><td class='num'>64208</td><td class='num'>0.000878 / 0.01077 / 0.019702</td><td class='num'>8</td><td class='num'>16h 2m 55s (57775 s)</td><td class='num'>128.39 core-h</td><td class='num'>124.26612</td><td class='num'>46.815189</td><td class='num'>0.92851307</td><td class='num'>1.299267 / 0.444801 / 0.193197</td></tr>
+<tr><td><b>Andrew/Ooi Re200</b><br>Andrew/Ooi Re200</td><td>recommended display mesh</td><td class='num'>200</td><td class='num'>0–29.999973 s</td><td class='num'>49840</td><td class='num'>0.001724 / 0.010548 / 0.023868</td><td class='num'>8</td><td class='num'>11h 12m 0s (40320 s)</td><td class='num'>89.60 core-h</td><td class='num'>130.95665</td><td class='num'>46.673541</td><td class='num'>0.88936661</td><td class='num'>1.290048 / 0.437394 / 0.191530</td></tr>
+<tr><td><b>Andrew/Ooi Re3900</b><br>Andrew/Ooi Re3900</td><td>URANS pilot, separate scope</td><td class='num'>3900</td><td class='num'>0–8.00004 s</td><td class='num'>49840</td><td class='num'>0.023465 / 0.170484 / 0.39003</td><td class='num'>8</td><td class='num'>1h 33m 38s (5618 s)</td><td class='num'>12.48 core-h</td><td class='num'>130.95665</td><td class='num'>46.673541</td><td class='num'>0.88936661</td><td class='num'>separate pilot / separate pilot / separate pilot</td></tr>
+</table>
+<h2>Runtime log evidence / 运行日志证据</h2><table><tr><th>Case</th><th>Log segments</th><th>Completed segments</th><th>Runtime log files</th></tr>
+<tr><td>M4</td><td>1</td><td>1</td><td>log.foamRun_lit_gamg_parallel_20260912</td></tr>
+<tr><td>M5</td><td>1</td><td>1</td><td>log.foamRun_lit_gamg_parallel_20260912</td></tr>
+<tr><td>M6</td><td>1</td><td>1</td><td>log.foamRun_lit_gamg_parallel_20260912</td></tr>
+<tr><td>M7</td><td>2</td><td>1</td><td>log.foamRun_morelit_gamg_parallel_20260912; log.foamRun_recovery_m7_braza_retry_20260915_123158</td></tr>
+<tr><td>M8</td><td>2</td><td>1</td><td>log.foamRun_m8_resume_20260913_parallel_20260913_122517; log.foamRun_morelit_gamg_parallel_20260912</td></tr>
+<tr><td>M9</td><td>2</td><td>1</td><td>log.foamRun_recovery_m9_resume_20260913_232917; log.foamRun_resume_queue_20260913_parallel_20260913_195602</td></tr>
+<tr><td>M10</td><td>1</td><td>1</td><td>log.foamRun_recovery_m10_fresh_20260914_074310</td></tr>
+<tr><td>Andrew/Ooi Re200</td><td>1</td><td>1</td><td>log.foamRun_recovery_andrew_re200_20260914_234608</td></tr>
+<tr><td>Andrew/Ooi Re3900</td><td>1</td><td>1</td><td>log.foamRun_recovery_andrew_re3900_20260915_105813</td></tr>
+</table>
+<h2>M4 — Qu/Jiang</h2><p><b>Folder:</b> <code>cylinderTRUE_Re200_LitMesh_QuJiang_192circ32rad_wake60_dt1e04_30s_codex_20260912</code></p>
+<table><tr><th>Item</th><th>Symbol / setting</th><th>Value</th><th>Notes for PINN</th></tr>
+<tr><td>Reynolds number</td><td>Re</td><td>200</td><td>Target Reynolds number</td></tr>
+<tr><td>Cylinder diameter</td><td>D</td><td>0.001 m</td><td>Geometric/reference length scale</td></tr>
+<tr><td>Free-stream velocity</td><td>U∞</td><td>0.015 m/s</td><td>Reference velocity and inlet velocity</td></tr>
+<tr><td>Kinematic viscosity</td><td>ν</td><td>7.5e-08 m²/s</td><td>Use this value in the dimensional PINN physics loss</td></tr>
+<tr><td>Flow type</td><td>—</td><td>2D, incompressible, transient, laminar</td><td>Re200 cases use laminar; Re3900 is kept separate as URANS pilot</td></tr>
+<tr><td>OpenFOAM version</td><td>—</td><td>OpenFOAM 14</td><td>CFD data source</td></tr>
+<tr><td>CFD solver</td><td>—</td><td>foamRun + incompressibleFluid</td><td>Incompressible transient solver</td></tr>
+<tr><td>Actual parallel cores / MPI ranks</td><td>—</td><td>8</td><td>Read from processor directories and foamRun nProcs logs</td></tr>
+<tr><td>Total wall-clock runtime</td><td>—</td><td>6h 58m 41s (25121 s)</td><td>Accumulated ClockTime from log.foamRun* segments</td></tr>
+<tr><td>Compute cost</td><td>—</td><td>55.82 core-h</td><td>MPI ranks × wall-clock time</td></tr>
+<tr><td>Runtime log source</td><td>—</td><td>log.foamRun_lit_gamg_parallel_20260912</td><td>Used to compute total runtime</td></tr>
+<tr><td>Pressure–velocity coupling</td><td>—</td><td>PIMPLE</td><td>Transient pressure–velocity coupling</td></tr>
+<tr><td>Cylinder centre</td><td>(xc,yc)</td><td>(0,0)</td><td>Cylinder location</td></tr>
+<tr><td>Computational domain</td><td>(x,y)</td><td>approximately −0.1 to 0.1 m</td><td>Cylinder-centred domain family</td></tr>
+<tr><td>Mesh size</td><td>—</td><td>28608 cells</td><td>All cells are hexahedral</td></tr>
+<tr><td>Mesh dimensionality</td><td>—</td><td>2D</td><td>One cell in spanwise direction; front/back are empty/frontAndBack</td></tr>
+<tr><td>Mesh quality</td><td>—</td><td>Mesh OK</td><td>Passed OpenFOAM checkMesh</td></tr>
+<tr><td>Max aspect ratio</td><td>—</td><td>117.25416</td><td>Mesh-quality reference</td></tr>
+<tr><td>Max non-orthogonality</td><td>—</td><td>46.194952°, average 8.1240093°</td><td>Mesh-quality reference</td></tr>
+<tr><td>Max skewness</td><td>—</td><td>0.93374189</td><td>Mesh-quality reference</td></tr>
+<tr><td>Cylinder y+</td><td>—</td><td>min 0.001768, mean 0.017287, max 0.032562</td><td>Computed at latest reconstructed t=30 s; samples=192</td></tr>
+<tr><td>First wall-cell distance</td><td>y1</td><td>min 9.40805e-08, mean 5.76191e-07, max 6.82399e-07 m</td><td>Used in y+ calculation</td></tr>
+<tr><td>Simulation time</td><td>t</td><td>0–30.0 s</td><td>Full CFD physical interval reached</td></tr>
+<tr><td>Maximum CFD time step</td><td>Δtmax</td><td>0.0001 s</td><td>Maximum allowed time step</td></tr>
+<tr><td>Base CFD time step</td><td>Δt</td><td>0.0001 s</td><td>controlDict deltaT</td></tr>
+<tr><td>Adaptive time stepping</td><td>—</td><td>Yes</td><td>Controlled by Courant number</td></tr>
+<tr><td>Maximum Courant number</td><td>Comax</td><td>0.3</td><td>CFD stability/accuracy control</td></tr>
+<tr><td>PINN inputs</td><td>—</td><td>x, y, t</td><td>Neural-network inputs</td></tr>
+<tr><td>PINN outputs</td><td>—</td><td>u, v, p</td><td>Predicted flow variables</td></tr>
+<tr><td>x,y units</td><td>—</td><td>m</td><td>Dimensional coordinates</td></tr>
+<tr><td>t unit</td><td>—</td><td>s</td><td>Physical time</td></tr>
+<tr><td>u,v units</td><td>—</td><td>m/s</td><td>Velocity components</td></tr>
+<tr><td>Pressure p unit</td><td>—</td><td>m²/s²</td><td>Kinematic pressure, NOT Pa</td></tr>
+<tr><td>Inlet velocity BC</td><td>—</td><td>u=0.015, v=0</td><td>fixedValue</td></tr>
+<tr><td>Outlet velocity BC</td><td>—</td><td>∂U/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>Cylinder velocity BC</td><td>—</td><td>u=v=0</td><td>noSlip wall</td></tr>
+<tr><td>Inlet pressure BC</td><td>—</td><td>∂p/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>Outlet pressure BC</td><td>—</td><td>p=0</td><td>fixedValue pressure reference</td></tr>
+<tr><td>Cylinder pressure BC</td><td>—</td><td>∂p/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>PINN mapping</td><td>—</td><td>(x,y,t) → (u,v,p)</td><td>Main learning problem</td></tr>
+<tr><td>Dataset file</td><td>—</td><td>M4_xyt_uvp.mat</td><td>Recommended case-specific export name</td></tr>
+<tr><td>Normalisation</td><td>—</td><td>Do not assume nondimensionalised</td><td>Any normalisation must be explicitly defined in PINN code</td></tr>
+<tr><td>Main validation quantities</td><td>—</td><td>CD, CL(t), f, St, u, v, p</td><td>CFD–PINN comparison</td></tr>
+<tr><td>Measured Cd / CLrms / St</td><td>—</td><td>1.275002 / 0.430419 / 0.187983</td><td>Late-window Re200 force statistics; Re3900 separate pilot</td></tr>
+</table>
+<h2>M5 — TeacherSmooth</h2><p><b>Folder:</b> <code>cylinderTRUE_Re200_LitMesh_TeacherSmooth_224circ36rad_wake70_dt1e04_30s_codex_20260912</code></p>
+<table><tr><th>Item</th><th>Symbol / setting</th><th>Value</th><th>Notes for PINN</th></tr>
+<tr><td>Reynolds number</td><td>Re</td><td>200</td><td>Target Reynolds number</td></tr>
+<tr><td>Cylinder diameter</td><td>D</td><td>0.001 m</td><td>Geometric/reference length scale</td></tr>
+<tr><td>Free-stream velocity</td><td>U∞</td><td>0.015 m/s</td><td>Reference velocity and inlet velocity</td></tr>
+<tr><td>Kinematic viscosity</td><td>ν</td><td>7.5e-08 m²/s</td><td>Use this value in the dimensional PINN physics loss</td></tr>
+<tr><td>Flow type</td><td>—</td><td>2D, incompressible, transient, laminar</td><td>Re200 cases use laminar; Re3900 is kept separate as URANS pilot</td></tr>
+<tr><td>OpenFOAM version</td><td>—</td><td>OpenFOAM 14</td><td>CFD data source</td></tr>
+<tr><td>CFD solver</td><td>—</td><td>foamRun + incompressibleFluid</td><td>Incompressible transient solver</td></tr>
+<tr><td>Actual parallel cores / MPI ranks</td><td>—</td><td>8</td><td>Read from processor directories and foamRun nProcs logs</td></tr>
+<tr><td>Total wall-clock runtime</td><td>—</td><td>8h 48m 44s (31724 s)</td><td>Accumulated ClockTime from log.foamRun* segments</td></tr>
+<tr><td>Compute cost</td><td>—</td><td>70.50 core-h</td><td>MPI ranks × wall-clock time</td></tr>
+<tr><td>Runtime log source</td><td>—</td><td>log.foamRun_lit_gamg_parallel_20260912</td><td>Used to compute total runtime</td></tr>
+<tr><td>Pressure–velocity coupling</td><td>—</td><td>PIMPLE</td><td>Transient pressure–velocity coupling</td></tr>
+<tr><td>Cylinder centre</td><td>(xc,yc)</td><td>(0,0)</td><td>Cylinder location</td></tr>
+<tr><td>Computational domain</td><td>(x,y)</td><td>approximately −0.1 to 0.1 m</td><td>Cylinder-centred domain family</td></tr>
+<tr><td>Mesh size</td><td>—</td><td>38176 cells</td><td>All cells are hexahedral</td></tr>
+<tr><td>Mesh dimensionality</td><td>—</td><td>2D</td><td>One cell in spanwise direction; front/back are empty/frontAndBack</td></tr>
+<tr><td>Mesh quality</td><td>—</td><td>Mesh OK</td><td>Passed OpenFOAM checkMesh</td></tr>
+<tr><td>Max aspect ratio</td><td>—</td><td>115.95065</td><td>Mesh-quality reference</td></tr>
+<tr><td>Max non-orthogonality</td><td>—</td><td>46.445276°, average 7.8302268°</td><td>Mesh-quality reference</td></tr>
+<tr><td>Max skewness</td><td>—</td><td>0.9968859</td><td>Mesh-quality reference</td></tr>
+<tr><td>Cylinder y+</td><td>—</td><td>min 0.002314, mean 0.027835, max 0.061275</td><td>Computed at latest reconstructed t=30 s; samples=224</td></tr>
+<tr><td>First wall-cell distance</td><td>y1</td><td>min 5.48923e-07, mean 9.34365e-07, max 1.01294e-06 m</td><td>Used in y+ calculation</td></tr>
+<tr><td>Simulation time</td><td>t</td><td>0–30.0 s</td><td>Full CFD physical interval reached</td></tr>
+<tr><td>Maximum CFD time step</td><td>Δtmax</td><td>0.0001 s</td><td>Maximum allowed time step</td></tr>
+<tr><td>Base CFD time step</td><td>Δt</td><td>0.0001 s</td><td>controlDict deltaT</td></tr>
+<tr><td>Adaptive time stepping</td><td>—</td><td>Yes</td><td>Controlled by Courant number</td></tr>
+<tr><td>Maximum Courant number</td><td>Comax</td><td>0.3</td><td>CFD stability/accuracy control</td></tr>
+<tr><td>PINN inputs</td><td>—</td><td>x, y, t</td><td>Neural-network inputs</td></tr>
+<tr><td>PINN outputs</td><td>—</td><td>u, v, p</td><td>Predicted flow variables</td></tr>
+<tr><td>x,y units</td><td>—</td><td>m</td><td>Dimensional coordinates</td></tr>
+<tr><td>t unit</td><td>—</td><td>s</td><td>Physical time</td></tr>
+<tr><td>u,v units</td><td>—</td><td>m/s</td><td>Velocity components</td></tr>
+<tr><td>Pressure p unit</td><td>—</td><td>m²/s²</td><td>Kinematic pressure, NOT Pa</td></tr>
+<tr><td>Inlet velocity BC</td><td>—</td><td>u=0.015, v=0</td><td>fixedValue</td></tr>
+<tr><td>Outlet velocity BC</td><td>—</td><td>∂U/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>Cylinder velocity BC</td><td>—</td><td>u=v=0</td><td>noSlip wall</td></tr>
+<tr><td>Inlet pressure BC</td><td>—</td><td>∂p/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>Outlet pressure BC</td><td>—</td><td>p=0</td><td>fixedValue pressure reference</td></tr>
+<tr><td>Cylinder pressure BC</td><td>—</td><td>∂p/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>PINN mapping</td><td>—</td><td>(x,y,t) → (u,v,p)</td><td>Main learning problem</td></tr>
+<tr><td>Dataset file</td><td>—</td><td>M5_xyt_uvp.mat</td><td>Recommended case-specific export name</td></tr>
+<tr><td>Normalisation</td><td>—</td><td>Do not assume nondimensionalised</td><td>Any normalisation must be explicitly defined in PINN code</td></tr>
+<tr><td>Main validation quantities</td><td>—</td><td>CD, CL(t), f, St, u, v, p</td><td>CFD–PINN comparison</td></tr>
+<tr><td>Measured Cd / CLrms / St</td><td>—</td><td>1.288671 / 0.435587 / 0.191449</td><td>Late-window Re200 force statistics; Re3900 separate pilot</td></tr>
+</table>
+<h2>M6 — Young/Ooi/Krav</h2><p><b>Folder:</b> <code>cylinderTRUE_Re200_LitMesh_YoungOoiKrav_256circ40rad_wake80_dt1e04_30s_codex_20260912</code></p>
+<table><tr><th>Item</th><th>Symbol / setting</th><th>Value</th><th>Notes for PINN</th></tr>
+<tr><td>Reynolds number</td><td>Re</td><td>200</td><td>Target Reynolds number</td></tr>
+<tr><td>Cylinder diameter</td><td>D</td><td>0.001 m</td><td>Geometric/reference length scale</td></tr>
+<tr><td>Free-stream velocity</td><td>U∞</td><td>0.015 m/s</td><td>Reference velocity and inlet velocity</td></tr>
+<tr><td>Kinematic viscosity</td><td>ν</td><td>7.5e-08 m²/s</td><td>Use this value in the dimensional PINN physics loss</td></tr>
+<tr><td>Flow type</td><td>—</td><td>2D, incompressible, transient, laminar</td><td>Re200 cases use laminar; Re3900 is kept separate as URANS pilot</td></tr>
+<tr><td>OpenFOAM version</td><td>—</td><td>OpenFOAM 14</td><td>CFD data source</td></tr>
+<tr><td>CFD solver</td><td>—</td><td>foamRun + incompressibleFluid</td><td>Incompressible transient solver</td></tr>
+<tr><td>Actual parallel cores / MPI ranks</td><td>—</td><td>8</td><td>Read from processor directories and foamRun nProcs logs</td></tr>
+<tr><td>Total wall-clock runtime</td><td>—</td><td>13h 30m 10s (48610 s)</td><td>Accumulated ClockTime from log.foamRun* segments</td></tr>
+<tr><td>Compute cost</td><td>—</td><td>108.02 core-h</td><td>MPI ranks × wall-clock time</td></tr>
+<tr><td>Runtime log source</td><td>—</td><td>log.foamRun_lit_gamg_parallel_20260912</td><td>Used to compute total runtime</td></tr>
+<tr><td>Pressure–velocity coupling</td><td>—</td><td>PIMPLE</td><td>Transient pressure–velocity coupling</td></tr>
+<tr><td>Cylinder centre</td><td>(xc,yc)</td><td>(0,0)</td><td>Cylinder location</td></tr>
+<tr><td>Computational domain</td><td>(x,y)</td><td>approximately −0.1 to 0.1 m</td><td>Cylinder-centred domain family</td></tr>
+<tr><td>Mesh size</td><td>—</td><td>49840 cells</td><td>All cells are hexahedral</td></tr>
+<tr><td>Mesh dimensionality</td><td>—</td><td>2D</td><td>One cell in spanwise direction; front/back are empty/frontAndBack</td></tr>
+<tr><td>Mesh quality</td><td>—</td><td>Mesh OK</td><td>Passed OpenFOAM checkMesh</td></tr>
+<tr><td>Max aspect ratio</td><td>—</td><td>130.95665</td><td>Mesh-quality reference</td></tr>
+<tr><td>Max non-orthogonality</td><td>—</td><td>46.673541°, average 7.9894327°</td><td>Mesh-quality reference</td></tr>
+<tr><td>Max skewness</td><td>—</td><td>0.88936661</td><td>Mesh-quality reference</td></tr>
+<tr><td>Cylinder y+</td><td>—</td><td>min 0.000804, mean 0.013357, max 0.02407</td><td>Computed at latest reconstructed t=29.999977 s; samples=256</td></tr>
+<tr><td>First wall-cell distance</td><td>y1</td><td>min 1.30726e-07, mean 4.44997e-07, max 5.07911e-07 m</td><td>Used in y+ calculation</td></tr>
+<tr><td>Simulation time</td><td>t</td><td>0–29.999977 s</td><td>Full CFD physical interval reached</td></tr>
+<tr><td>Maximum CFD time step</td><td>Δtmax</td><td>0.0001 s</td><td>Maximum allowed time step</td></tr>
+<tr><td>Base CFD time step</td><td>Δt</td><td>0.0001 s</td><td>controlDict deltaT</td></tr>
+<tr><td>Adaptive time stepping</td><td>—</td><td>Yes</td><td>Controlled by Courant number</td></tr>
+<tr><td>Maximum Courant number</td><td>Comax</td><td>0.3</td><td>CFD stability/accuracy control</td></tr>
+<tr><td>PINN inputs</td><td>—</td><td>x, y, t</td><td>Neural-network inputs</td></tr>
+<tr><td>PINN outputs</td><td>—</td><td>u, v, p</td><td>Predicted flow variables</td></tr>
+<tr><td>x,y units</td><td>—</td><td>m</td><td>Dimensional coordinates</td></tr>
+<tr><td>t unit</td><td>—</td><td>s</td><td>Physical time</td></tr>
+<tr><td>u,v units</td><td>—</td><td>m/s</td><td>Velocity components</td></tr>
+<tr><td>Pressure p unit</td><td>—</td><td>m²/s²</td><td>Kinematic pressure, NOT Pa</td></tr>
+<tr><td>Inlet velocity BC</td><td>—</td><td>u=0.015, v=0</td><td>fixedValue</td></tr>
+<tr><td>Outlet velocity BC</td><td>—</td><td>∂U/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>Cylinder velocity BC</td><td>—</td><td>u=v=0</td><td>noSlip wall</td></tr>
+<tr><td>Inlet pressure BC</td><td>—</td><td>∂p/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>Outlet pressure BC</td><td>—</td><td>p=0</td><td>fixedValue pressure reference</td></tr>
+<tr><td>Cylinder pressure BC</td><td>—</td><td>∂p/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>PINN mapping</td><td>—</td><td>(x,y,t) → (u,v,p)</td><td>Main learning problem</td></tr>
+<tr><td>Dataset file</td><td>—</td><td>M6_xyt_uvp.mat</td><td>Recommended case-specific export name</td></tr>
+<tr><td>Normalisation</td><td>—</td><td>Do not assume nondimensionalised</td><td>Any normalisation must be explicitly defined in PINN code</td></tr>
+<tr><td>Main validation quantities</td><td>—</td><td>CD, CL(t), f, St, u, v, p</td><td>CFD–PINN comparison</td></tr>
+<tr><td>Measured Cd / CLrms / St</td><td>—</td><td>1.290354 / 0.439621 / 0.191532</td><td>Late-window Re200 force statistics; Re3900 separate pilot</td></tr>
+</table>
+<h2>M7 — Braza JFM</h2><p><b>Folder:</b> <code>cylinderTRUE_Re200_LitMesh_BrazaJFM_nearWake_224circ40rad_wake90_dt1e04_30s_codex_20260912</code></p>
+<table><tr><th>Item</th><th>Symbol / setting</th><th>Value</th><th>Notes for PINN</th></tr>
+<tr><td>Reynolds number</td><td>Re</td><td>200</td><td>Target Reynolds number</td></tr>
+<tr><td>Cylinder diameter</td><td>D</td><td>0.001 m</td><td>Geometric/reference length scale</td></tr>
+<tr><td>Free-stream velocity</td><td>U∞</td><td>0.015 m/s</td><td>Reference velocity and inlet velocity</td></tr>
+<tr><td>Kinematic viscosity</td><td>ν</td><td>7.5e-08 m²/s</td><td>Use this value in the dimensional PINN physics loss</td></tr>
+<tr><td>Flow type</td><td>—</td><td>2D, incompressible, transient, laminar</td><td>Re200 cases use laminar; Re3900 is kept separate as URANS pilot</td></tr>
+<tr><td>OpenFOAM version</td><td>—</td><td>OpenFOAM 14</td><td>CFD data source</td></tr>
+<tr><td>CFD solver</td><td>—</td><td>foamRun + incompressibleFluid</td><td>Incompressible transient solver</td></tr>
+<tr><td>Actual parallel cores / MPI ranks</td><td>—</td><td>8</td><td>Read from processor directories and foamRun nProcs logs</td></tr>
+<tr><td>Total wall-clock runtime</td><td>—</td><td>14h 0m 46s (50446 s)</td><td>Accumulated ClockTime from log.foamRun* segments</td></tr>
+<tr><td>Compute cost</td><td>—</td><td>112.10 core-h</td><td>MPI ranks × wall-clock time</td></tr>
+<tr><td>Runtime log source</td><td>—</td><td>log.foamRun_morelit_gamg_parallel_20260912; log.foamRun_recovery_m7_braza_retry_20260915_123158</td><td>Used to compute total runtime</td></tr>
+<tr><td>Pressure–velocity coupling</td><td>—</td><td>PIMPLE</td><td>Transient pressure–velocity coupling</td></tr>
+<tr><td>Cylinder centre</td><td>(xc,yc)</td><td>(0,0)</td><td>Cylinder location</td></tr>
+<tr><td>Computational domain</td><td>(x,y)</td><td>approximately −0.1 to 0.1 m</td><td>Cylinder-centred domain family</td></tr>
+<tr><td>Mesh size</td><td>—</td><td>44024 cells</td><td>All cells are hexahedral</td></tr>
+<tr><td>Mesh dimensionality</td><td>—</td><td>2D</td><td>One cell in spanwise direction; front/back are empty/frontAndBack</td></tr>
+<tr><td>Mesh quality</td><td>—</td><td>Mesh OK</td><td>Passed OpenFOAM checkMesh</td></tr>
+<tr><td>Max aspect ratio</td><td>—</td><td>125.74102</td><td>Mesh-quality reference</td></tr>
+<tr><td>Max non-orthogonality</td><td>—</td><td>46.619023°, average 8.5305483°</td><td>Mesh-quality reference</td></tr>
+<tr><td>Max skewness</td><td>—</td><td>0.91431766</td><td>Mesh-quality reference</td></tr>
+<tr><td>Cylinder y+</td><td>—</td><td>min 0.001337, mean 0.020345, max 0.03763</td><td>Computed at latest reconstructed t=30 s; samples=224</td></tr>
+<tr><td>First wall-cell distance</td><td>y1</td><td>min 2.77683e-07, mean 6.62916e-07, max 7.41448e-07 m</td><td>Used in y+ calculation</td></tr>
+<tr><td>Simulation time</td><td>t</td><td>0–30.0 s</td><td>Full CFD physical interval reached</td></tr>
+<tr><td>Maximum CFD time step</td><td>Δtmax</td><td>0.0001 s</td><td>Maximum allowed time step</td></tr>
+<tr><td>Base CFD time step</td><td>Δt</td><td>0.0001 s</td><td>controlDict deltaT</td></tr>
+<tr><td>Adaptive time stepping</td><td>—</td><td>Yes</td><td>Controlled by Courant number</td></tr>
+<tr><td>Maximum Courant number</td><td>Comax</td><td>0.3</td><td>CFD stability/accuracy control</td></tr>
+<tr><td>PINN inputs</td><td>—</td><td>x, y, t</td><td>Neural-network inputs</td></tr>
+<tr><td>PINN outputs</td><td>—</td><td>u, v, p</td><td>Predicted flow variables</td></tr>
+<tr><td>x,y units</td><td>—</td><td>m</td><td>Dimensional coordinates</td></tr>
+<tr><td>t unit</td><td>—</td><td>s</td><td>Physical time</td></tr>
+<tr><td>u,v units</td><td>—</td><td>m/s</td><td>Velocity components</td></tr>
+<tr><td>Pressure p unit</td><td>—</td><td>m²/s²</td><td>Kinematic pressure, NOT Pa</td></tr>
+<tr><td>Inlet velocity BC</td><td>—</td><td>u=0.015, v=0</td><td>fixedValue</td></tr>
+<tr><td>Outlet velocity BC</td><td>—</td><td>∂U/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>Cylinder velocity BC</td><td>—</td><td>u=v=0</td><td>noSlip wall</td></tr>
+<tr><td>Inlet pressure BC</td><td>—</td><td>∂p/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>Outlet pressure BC</td><td>—</td><td>p=0</td><td>fixedValue pressure reference</td></tr>
+<tr><td>Cylinder pressure BC</td><td>—</td><td>∂p/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>PINN mapping</td><td>—</td><td>(x,y,t) → (u,v,p)</td><td>Main learning problem</td></tr>
+<tr><td>Dataset file</td><td>—</td><td>M7_xyt_uvp.mat</td><td>Recommended case-specific export name</td></tr>
+<tr><td>Normalisation</td><td>—</td><td>Do not assume nondimensionalised</td><td>Any normalisation must be explicitly defined in PINN code</td></tr>
+<tr><td>Main validation quantities</td><td>—</td><td>CD, CL(t), f, St, u, v, p</td><td>CFD–PINN comparison</td></tr>
+<tr><td>Measured Cd / CLrms / St</td><td>—</td><td>1.292019 / 0.437607 / 0.192214</td><td>Late-window Re200 force statistics; Re3900 separate pilot</td></tr>
+</table>
+<h2>M8 — Henderson PoF</h2><p><b>Folder:</b> <code>cylinderTRUE_Re200_LitMesh_HendersonPoF_drag_256circ44rad_wake72_dt1e04_30s_codex_20260912</code></p>
+<table><tr><th>Item</th><th>Symbol / setting</th><th>Value</th><th>Notes for PINN</th></tr>
+<tr><td>Reynolds number</td><td>Re</td><td>200</td><td>Target Reynolds number</td></tr>
+<tr><td>Cylinder diameter</td><td>D</td><td>0.001 m</td><td>Geometric/reference length scale</td></tr>
+<tr><td>Free-stream velocity</td><td>U∞</td><td>0.015 m/s</td><td>Reference velocity and inlet velocity</td></tr>
+<tr><td>Kinematic viscosity</td><td>ν</td><td>7.5e-08 m²/s</td><td>Use this value in the dimensional PINN physics loss</td></tr>
+<tr><td>Flow type</td><td>—</td><td>2D, incompressible, transient, laminar</td><td>Re200 cases use laminar; Re3900 is kept separate as URANS pilot</td></tr>
+<tr><td>OpenFOAM version</td><td>—</td><td>OpenFOAM 14</td><td>CFD data source</td></tr>
+<tr><td>CFD solver</td><td>—</td><td>foamRun + incompressibleFluid</td><td>Incompressible transient solver</td></tr>
+<tr><td>Actual parallel cores / MPI ranks</td><td>—</td><td>8</td><td>Read from processor directories and foamRun nProcs logs</td></tr>
+<tr><td>Total wall-clock runtime</td><td>—</td><td>11h 53m 6s (42786 s)</td><td>Accumulated ClockTime from log.foamRun* segments</td></tr>
+<tr><td>Compute cost</td><td>—</td><td>95.08 core-h</td><td>MPI ranks × wall-clock time</td></tr>
+<tr><td>Runtime log source</td><td>—</td><td>log.foamRun_m8_resume_20260913_parallel_20260913_122517; log.foamRun_morelit_gamg_parallel_20260912</td><td>Used to compute total runtime</td></tr>
+<tr><td>Pressure–velocity coupling</td><td>—</td><td>PIMPLE</td><td>Transient pressure–velocity coupling</td></tr>
+<tr><td>Cylinder centre</td><td>(xc,yc)</td><td>(0,0)</td><td>Cylinder location</td></tr>
+<tr><td>Computational domain</td><td>(x,y)</td><td>approximately −0.1 to 0.1 m</td><td>Cylinder-centred domain family</td></tr>
+<tr><td>Mesh size</td><td>—</td><td>46960 cells</td><td>All cells are hexahedral</td></tr>
+<tr><td>Mesh dimensionality</td><td>—</td><td>2D</td><td>One cell in spanwise direction; front/back are empty/frontAndBack</td></tr>
+<tr><td>Mesh quality</td><td>—</td><td>Mesh OK</td><td>Passed OpenFOAM checkMesh</td></tr>
+<tr><td>Max aspect ratio</td><td>—</td><td>107.53576</td><td>Mesh-quality reference</td></tr>
+<tr><td>Max non-orthogonality</td><td>—</td><td>46.576301°, average 7.7292209°</td><td>Mesh-quality reference</td></tr>
+<tr><td>Max skewness</td><td>—</td><td>1.0185337</td><td>Mesh-quality reference</td></tr>
+<tr><td>Cylinder y+</td><td>—</td><td>min 0.000995, mean 0.014617, max 0.026268</td><td>Computed at latest reconstructed t=30.00004 s; samples=256</td></tr>
+<tr><td>First wall-cell distance</td><td>y1</td><td>min 1.6147e-07, mean 4.75806e-07, max 5.38014e-07 m</td><td>Used in y+ calculation</td></tr>
+<tr><td>Simulation time</td><td>t</td><td>0–30.00004 s</td><td>Full CFD physical interval reached</td></tr>
+<tr><td>Maximum CFD time step</td><td>Δtmax</td><td>0.0001 s</td><td>Maximum allowed time step</td></tr>
+<tr><td>Base CFD time step</td><td>Δt</td><td>0.0001 s</td><td>controlDict deltaT</td></tr>
+<tr><td>Adaptive time stepping</td><td>—</td><td>Yes</td><td>Controlled by Courant number</td></tr>
+<tr><td>Maximum Courant number</td><td>Comax</td><td>0.3</td><td>CFD stability/accuracy control</td></tr>
+<tr><td>PINN inputs</td><td>—</td><td>x, y, t</td><td>Neural-network inputs</td></tr>
+<tr><td>PINN outputs</td><td>—</td><td>u, v, p</td><td>Predicted flow variables</td></tr>
+<tr><td>x,y units</td><td>—</td><td>m</td><td>Dimensional coordinates</td></tr>
+<tr><td>t unit</td><td>—</td><td>s</td><td>Physical time</td></tr>
+<tr><td>u,v units</td><td>—</td><td>m/s</td><td>Velocity components</td></tr>
+<tr><td>Pressure p unit</td><td>—</td><td>m²/s²</td><td>Kinematic pressure, NOT Pa</td></tr>
+<tr><td>Inlet velocity BC</td><td>—</td><td>u=0.015, v=0</td><td>fixedValue</td></tr>
+<tr><td>Outlet velocity BC</td><td>—</td><td>∂U/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>Cylinder velocity BC</td><td>—</td><td>u=v=0</td><td>noSlip wall</td></tr>
+<tr><td>Inlet pressure BC</td><td>—</td><td>∂p/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>Outlet pressure BC</td><td>—</td><td>p=0</td><td>fixedValue pressure reference</td></tr>
+<tr><td>Cylinder pressure BC</td><td>—</td><td>∂p/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>PINN mapping</td><td>—</td><td>(x,y,t) → (u,v,p)</td><td>Main learning problem</td></tr>
+<tr><td>Dataset file</td><td>—</td><td>M8_xyt_uvp.mat</td><td>Recommended case-specific export name</td></tr>
+<tr><td>Normalisation</td><td>—</td><td>Do not assume nondimensionalised</td><td>Any normalisation must be explicitly defined in PINN code</td></tr>
+<tr><td>Main validation quantities</td><td>—</td><td>CD, CL(t), f, St, u, v, p</td><td>CFD–PINN comparison</td></tr>
+<tr><td>Measured Cd / CLrms / St</td><td>—</td><td>1.295103 / 0.441585 / 0.192638</td><td>Late-window Re200 force statistics; Re3900 separate pilot</td></tr>
+</table>
+<h2>M9 — Jackson JFM</h2><p><b>Folder:</b> <code>cylinderTRUE_Re200_LitMesh_JacksonJFM_onset_224circ36rad_smooth_dt1e04_30s_codex_20260912</code></p>
+<table><tr><th>Item</th><th>Symbol / setting</th><th>Value</th><th>Notes for PINN</th></tr>
+<tr><td>Reynolds number</td><td>Re</td><td>200</td><td>Target Reynolds number</td></tr>
+<tr><td>Cylinder diameter</td><td>D</td><td>0.001 m</td><td>Geometric/reference length scale</td></tr>
+<tr><td>Free-stream velocity</td><td>U∞</td><td>0.015 m/s</td><td>Reference velocity and inlet velocity</td></tr>
+<tr><td>Kinematic viscosity</td><td>ν</td><td>7.5e-08 m²/s</td><td>Use this value in the dimensional PINN physics loss</td></tr>
+<tr><td>Flow type</td><td>—</td><td>2D, incompressible, transient, laminar</td><td>Re200 cases use laminar; Re3900 is kept separate as URANS pilot</td></tr>
+<tr><td>OpenFOAM version</td><td>—</td><td>OpenFOAM 14</td><td>CFD data source</td></tr>
+<tr><td>CFD solver</td><td>—</td><td>foamRun + incompressibleFluid</td><td>Incompressible transient solver</td></tr>
+<tr><td>Actual parallel cores / MPI ranks</td><td>—</td><td>8</td><td>Read from processor directories and foamRun nProcs logs</td></tr>
+<tr><td>Total wall-clock runtime</td><td>—</td><td>11h 39m 19s (41959 s)</td><td>Accumulated ClockTime from log.foamRun* segments</td></tr>
+<tr><td>Compute cost</td><td>—</td><td>93.24 core-h</td><td>MPI ranks × wall-clock time</td></tr>
+<tr><td>Runtime log source</td><td>—</td><td>log.foamRun_recovery_m9_resume_20260913_232917; log.foamRun_resume_queue_20260913_parallel_20260913_195602</td><td>Used to compute total runtime</td></tr>
+<tr><td>Pressure–velocity coupling</td><td>—</td><td>PIMPLE</td><td>Transient pressure–velocity coupling</td></tr>
+<tr><td>Cylinder centre</td><td>(xc,yc)</td><td>(0,0)</td><td>Cylinder location</td></tr>
+<tr><td>Computational domain</td><td>(x,y)</td><td>approximately −0.1 to 0.1 m</td><td>Cylinder-centred domain family</td></tr>
+<tr><td>Mesh size</td><td>—</td><td>45600 cells</td><td>All cells are hexahedral</td></tr>
+<tr><td>Mesh dimensionality</td><td>—</td><td>2D</td><td>One cell in spanwise direction; front/back are empty/frontAndBack</td></tr>
+<tr><td>Mesh quality</td><td>—</td><td>Mesh OK</td><td>Passed OpenFOAM checkMesh</td></tr>
+<tr><td>Max aspect ratio</td><td>—</td><td>97.868617</td><td>Mesh-quality reference</td></tr>
+<tr><td>Max non-orthogonality</td><td>—</td><td>46.573914°, average 8.3280936°</td><td>Mesh-quality reference</td></tr>
+<tr><td>Max skewness</td><td>—</td><td>0.93306564</td><td>Mesh-quality reference</td></tr>
+<tr><td>Cylinder y+</td><td>—</td><td>min 0.001357, mean 0.027789, max 0.058763</td><td>Computed at latest reconstructed t=30 s; samples=224</td></tr>
+<tr><td>First wall-cell distance</td><td>y1</td><td>min 5.1581e-07, mean 9.01276e-07, max 9.7872e-07 m</td><td>Used in y+ calculation</td></tr>
+<tr><td>Simulation time</td><td>t</td><td>0–30.0 s</td><td>Full CFD physical interval reached</td></tr>
+<tr><td>Maximum CFD time step</td><td>Δtmax</td><td>0.0001 s</td><td>Maximum allowed time step</td></tr>
+<tr><td>Base CFD time step</td><td>Δt</td><td>0.0001 s</td><td>controlDict deltaT</td></tr>
+<tr><td>Adaptive time stepping</td><td>—</td><td>Yes</td><td>Controlled by Courant number</td></tr>
+<tr><td>Maximum Courant number</td><td>Comax</td><td>0.3</td><td>CFD stability/accuracy control</td></tr>
+<tr><td>PINN inputs</td><td>—</td><td>x, y, t</td><td>Neural-network inputs</td></tr>
+<tr><td>PINN outputs</td><td>—</td><td>u, v, p</td><td>Predicted flow variables</td></tr>
+<tr><td>x,y units</td><td>—</td><td>m</td><td>Dimensional coordinates</td></tr>
+<tr><td>t unit</td><td>—</td><td>s</td><td>Physical time</td></tr>
+<tr><td>u,v units</td><td>—</td><td>m/s</td><td>Velocity components</td></tr>
+<tr><td>Pressure p unit</td><td>—</td><td>m²/s²</td><td>Kinematic pressure, NOT Pa</td></tr>
+<tr><td>Inlet velocity BC</td><td>—</td><td>u=0.015, v=0</td><td>fixedValue</td></tr>
+<tr><td>Outlet velocity BC</td><td>—</td><td>∂U/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>Cylinder velocity BC</td><td>—</td><td>u=v=0</td><td>noSlip wall</td></tr>
+<tr><td>Inlet pressure BC</td><td>—</td><td>∂p/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>Outlet pressure BC</td><td>—</td><td>p=0</td><td>fixedValue pressure reference</td></tr>
+<tr><td>Cylinder pressure BC</td><td>—</td><td>∂p/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>PINN mapping</td><td>—</td><td>(x,y,t) → (u,v,p)</td><td>Main learning problem</td></tr>
+<tr><td>Dataset file</td><td>—</td><td>M9_xyt_uvp.mat</td><td>Recommended case-specific export name</td></tr>
+<tr><td>Normalisation</td><td>—</td><td>Do not assume nondimensionalised</td><td>Any normalisation must be explicitly defined in PINN code</td></tr>
+<tr><td>Main validation quantities</td><td>—</td><td>CD, CL(t), f, St, u, v, p</td><td>CFD–PINN comparison</td></tr>
+<tr><td>Measured Cd / CLrms / St</td><td>—</td><td>1.288004 / 0.435875 / 0.191374</td><td>Late-window Re200 force statistics; Re3900 separate pilot</td></tr>
+</table>
+<h2>M10 — Rajani AMM</h2><p><b>Folder:</b> <code>cylinderTRUE_Re200_LitMesh_RajaniAMM_laminar_288circ48rad_wake90_dt1e04_30s_codex_20260912</code></p>
+<table><tr><th>Item</th><th>Symbol / setting</th><th>Value</th><th>Notes for PINN</th></tr>
+<tr><td>Reynolds number</td><td>Re</td><td>200</td><td>Target Reynolds number</td></tr>
+<tr><td>Cylinder diameter</td><td>D</td><td>0.001 m</td><td>Geometric/reference length scale</td></tr>
+<tr><td>Free-stream velocity</td><td>U∞</td><td>0.015 m/s</td><td>Reference velocity and inlet velocity</td></tr>
+<tr><td>Kinematic viscosity</td><td>ν</td><td>7.5e-08 m²/s</td><td>Use this value in the dimensional PINN physics loss</td></tr>
+<tr><td>Flow type</td><td>—</td><td>2D, incompressible, transient, laminar</td><td>Re200 cases use laminar; Re3900 is kept separate as URANS pilot</td></tr>
+<tr><td>OpenFOAM version</td><td>—</td><td>OpenFOAM 14</td><td>CFD data source</td></tr>
+<tr><td>CFD solver</td><td>—</td><td>foamRun + incompressibleFluid</td><td>Incompressible transient solver</td></tr>
+<tr><td>Actual parallel cores / MPI ranks</td><td>—</td><td>8</td><td>Read from processor directories and foamRun nProcs logs</td></tr>
+<tr><td>Total wall-clock runtime</td><td>—</td><td>16h 2m 55s (57775 s)</td><td>Accumulated ClockTime from log.foamRun* segments</td></tr>
+<tr><td>Compute cost</td><td>—</td><td>128.39 core-h</td><td>MPI ranks × wall-clock time</td></tr>
+<tr><td>Runtime log source</td><td>—</td><td>log.foamRun_recovery_m10_fresh_20260914_074310</td><td>Used to compute total runtime</td></tr>
+<tr><td>Pressure–velocity coupling</td><td>—</td><td>PIMPLE</td><td>Transient pressure–velocity coupling</td></tr>
+<tr><td>Cylinder centre</td><td>(xc,yc)</td><td>(0,0)</td><td>Cylinder location</td></tr>
+<tr><td>Computational domain</td><td>(x,y)</td><td>approximately −0.1 to 0.1 m</td><td>Cylinder-centred domain family</td></tr>
+<tr><td>Mesh size</td><td>—</td><td>64208 cells</td><td>All cells are hexahedral</td></tr>
+<tr><td>Mesh dimensionality</td><td>—</td><td>2D</td><td>One cell in spanwise direction; front/back are empty/frontAndBack</td></tr>
+<tr><td>Mesh quality</td><td>—</td><td>Mesh OK</td><td>Passed OpenFOAM checkMesh</td></tr>
+<tr><td>Max aspect ratio</td><td>—</td><td>124.26612</td><td>Mesh-quality reference</td></tr>
+<tr><td>Max non-orthogonality</td><td>—</td><td>46.815189°, average 7.9148679°</td><td>Mesh-quality reference</td></tr>
+<tr><td>Max skewness</td><td>—</td><td>0.92851307</td><td>Mesh-quality reference</td></tr>
+<tr><td>Cylinder y+</td><td>—</td><td>min 0.000878, mean 0.01077, max 0.019702</td><td>Computed at latest reconstructed t=30.000034 s; samples=288</td></tr>
+<tr><td>First wall-cell distance</td><td>y1</td><td>min 1.15516e-07, mean 3.76782e-07, max 4.27319e-07 m</td><td>Used in y+ calculation</td></tr>
+<tr><td>Simulation time</td><td>t</td><td>0–30.000034 s</td><td>Full CFD physical interval reached</td></tr>
+<tr><td>Maximum CFD time step</td><td>Δtmax</td><td>0.0001 s</td><td>Maximum allowed time step</td></tr>
+<tr><td>Base CFD time step</td><td>Δt</td><td>0.0001 s</td><td>controlDict deltaT</td></tr>
+<tr><td>Adaptive time stepping</td><td>—</td><td>Yes</td><td>Controlled by Courant number</td></tr>
+<tr><td>Maximum Courant number</td><td>Comax</td><td>0.3</td><td>CFD stability/accuracy control</td></tr>
+<tr><td>PINN inputs</td><td>—</td><td>x, y, t</td><td>Neural-network inputs</td></tr>
+<tr><td>PINN outputs</td><td>—</td><td>u, v, p</td><td>Predicted flow variables</td></tr>
+<tr><td>x,y units</td><td>—</td><td>m</td><td>Dimensional coordinates</td></tr>
+<tr><td>t unit</td><td>—</td><td>s</td><td>Physical time</td></tr>
+<tr><td>u,v units</td><td>—</td><td>m/s</td><td>Velocity components</td></tr>
+<tr><td>Pressure p unit</td><td>—</td><td>m²/s²</td><td>Kinematic pressure, NOT Pa</td></tr>
+<tr><td>Inlet velocity BC</td><td>—</td><td>u=0.015, v=0</td><td>fixedValue</td></tr>
+<tr><td>Outlet velocity BC</td><td>—</td><td>∂U/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>Cylinder velocity BC</td><td>—</td><td>u=v=0</td><td>noSlip wall</td></tr>
+<tr><td>Inlet pressure BC</td><td>—</td><td>∂p/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>Outlet pressure BC</td><td>—</td><td>p=0</td><td>fixedValue pressure reference</td></tr>
+<tr><td>Cylinder pressure BC</td><td>—</td><td>∂p/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>PINN mapping</td><td>—</td><td>(x,y,t) → (u,v,p)</td><td>Main learning problem</td></tr>
+<tr><td>Dataset file</td><td>—</td><td>M10_xyt_uvp.mat</td><td>Recommended case-specific export name</td></tr>
+<tr><td>Normalisation</td><td>—</td><td>Do not assume nondimensionalised</td><td>Any normalisation must be explicitly defined in PINN code</td></tr>
+<tr><td>Main validation quantities</td><td>—</td><td>CD, CL(t), f, St, u, v, p</td><td>CFD–PINN comparison</td></tr>
+<tr><td>Measured Cd / CLrms / St</td><td>—</td><td>1.299267 / 0.444801 / 0.193197</td><td>Late-window Re200 force statistics; Re3900 separate pilot</td></tr>
+</table>
+<h2>Andrew/Ooi Re200 — Andrew/Ooi Re200</h2><p><b>Folder:</b> <code>cylinderTRUE_Re200_AndrewOoiGrid_laminar_dt1e04_30s_codex_20260912</code></p>
+<table><tr><th>Item</th><th>Symbol / setting</th><th>Value</th><th>Notes for PINN</th></tr>
+<tr><td>Reynolds number</td><td>Re</td><td>200</td><td>Target Reynolds number</td></tr>
+<tr><td>Cylinder diameter</td><td>D</td><td>0.001 m</td><td>Geometric/reference length scale</td></tr>
+<tr><td>Free-stream velocity</td><td>U∞</td><td>0.015 m/s</td><td>Reference velocity and inlet velocity</td></tr>
+<tr><td>Kinematic viscosity</td><td>ν</td><td>7.5e-08 m²/s</td><td>Use this value in the dimensional PINN physics loss</td></tr>
+<tr><td>Flow type</td><td>—</td><td>2D, incompressible, transient, laminar</td><td>Re200 cases use laminar; Re3900 is kept separate as URANS pilot</td></tr>
+<tr><td>OpenFOAM version</td><td>—</td><td>OpenFOAM 14</td><td>CFD data source</td></tr>
+<tr><td>CFD solver</td><td>—</td><td>foamRun + incompressibleFluid</td><td>Incompressible transient solver</td></tr>
+<tr><td>Actual parallel cores / MPI ranks</td><td>—</td><td>8</td><td>Read from processor directories and foamRun nProcs logs</td></tr>
+<tr><td>Total wall-clock runtime</td><td>—</td><td>11h 12m 0s (40320 s)</td><td>Accumulated ClockTime from log.foamRun* segments</td></tr>
+<tr><td>Compute cost</td><td>—</td><td>89.60 core-h</td><td>MPI ranks × wall-clock time</td></tr>
+<tr><td>Runtime log source</td><td>—</td><td>log.foamRun_recovery_andrew_re200_20260914_234608</td><td>Used to compute total runtime</td></tr>
+<tr><td>Pressure–velocity coupling</td><td>—</td><td>PIMPLE</td><td>Transient pressure–velocity coupling</td></tr>
+<tr><td>Cylinder centre</td><td>(xc,yc)</td><td>(0,0)</td><td>Cylinder location</td></tr>
+<tr><td>Computational domain</td><td>(x,y)</td><td>approximately −0.1 to 0.1 m</td><td>Cylinder-centred domain family</td></tr>
+<tr><td>Mesh size</td><td>—</td><td>49840 cells</td><td>All cells are hexahedral</td></tr>
+<tr><td>Mesh dimensionality</td><td>—</td><td>2D</td><td>One cell in spanwise direction; front/back are empty/frontAndBack</td></tr>
+<tr><td>Mesh quality</td><td>—</td><td>Mesh OK</td><td>Passed OpenFOAM checkMesh</td></tr>
+<tr><td>Max aspect ratio</td><td>—</td><td>130.95665</td><td>Mesh-quality reference</td></tr>
+<tr><td>Max non-orthogonality</td><td>—</td><td>46.673541°, average 7.9894327°</td><td>Mesh-quality reference</td></tr>
+<tr><td>Max skewness</td><td>—</td><td>0.88936661</td><td>Mesh-quality reference</td></tr>
+<tr><td>Cylinder y+</td><td>—</td><td>min 0.001724, mean 0.010548, max 0.023868</td><td>Computed at latest reconstructed t=29.999973 s; samples=256</td></tr>
+<tr><td>First wall-cell distance</td><td>y1</td><td>min 1.30726e-07, mean 4.44997e-07, max 5.07911e-07 m</td><td>Used in y+ calculation</td></tr>
+<tr><td>Simulation time</td><td>t</td><td>0–29.999973 s</td><td>Full CFD physical interval reached</td></tr>
+<tr><td>Maximum CFD time step</td><td>Δtmax</td><td>0.0001 s</td><td>Maximum allowed time step</td></tr>
+<tr><td>Base CFD time step</td><td>Δt</td><td>0.0001 s</td><td>controlDict deltaT</td></tr>
+<tr><td>Adaptive time stepping</td><td>—</td><td>Yes</td><td>Controlled by Courant number</td></tr>
+<tr><td>Maximum Courant number</td><td>Comax</td><td>0.3</td><td>CFD stability/accuracy control</td></tr>
+<tr><td>PINN inputs</td><td>—</td><td>x, y, t</td><td>Neural-network inputs</td></tr>
+<tr><td>PINN outputs</td><td>—</td><td>u, v, p</td><td>Predicted flow variables</td></tr>
+<tr><td>x,y units</td><td>—</td><td>m</td><td>Dimensional coordinates</td></tr>
+<tr><td>t unit</td><td>—</td><td>s</td><td>Physical time</td></tr>
+<tr><td>u,v units</td><td>—</td><td>m/s</td><td>Velocity components</td></tr>
+<tr><td>Pressure p unit</td><td>—</td><td>m²/s²</td><td>Kinematic pressure, NOT Pa</td></tr>
+<tr><td>Inlet velocity BC</td><td>—</td><td>u=0.015, v=0</td><td>fixedValue</td></tr>
+<tr><td>Outlet velocity BC</td><td>—</td><td>∂U/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>Cylinder velocity BC</td><td>—</td><td>u=v=0</td><td>noSlip wall</td></tr>
+<tr><td>Inlet pressure BC</td><td>—</td><td>∂p/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>Outlet pressure BC</td><td>—</td><td>p=0</td><td>fixedValue pressure reference</td></tr>
+<tr><td>Cylinder pressure BC</td><td>—</td><td>∂p/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>PINN mapping</td><td>—</td><td>(x,y,t) → (u,v,p)</td><td>Main learning problem</td></tr>
+<tr><td>Dataset file</td><td>—</td><td>Andrew_Ooi_Re200_xyt_uvp.mat</td><td>Recommended case-specific export name</td></tr>
+<tr><td>Normalisation</td><td>—</td><td>Do not assume nondimensionalised</td><td>Any normalisation must be explicitly defined in PINN code</td></tr>
+<tr><td>Main validation quantities</td><td>—</td><td>CD, CL(t), f, St, u, v, p</td><td>CFD–PINN comparison</td></tr>
+<tr><td>Measured Cd / CLrms / St</td><td>—</td><td>1.290048 / 0.437394 / 0.191530</td><td>Late-window Re200 force statistics; Re3900 separate pilot</td></tr>
+</table>
+<h2>Andrew/Ooi Re3900 — Andrew/Ooi Re3900</h2><p><b>Folder:</b> <code>cylinderTRUE_Re3900_AndrewOoiGrid_URANS_SST_dt2e04_8s_codex_20260912</code></p>
+<table><tr><th>Item</th><th>Symbol / setting</th><th>Value</th><th>Notes for PINN</th></tr>
+<tr><td>Reynolds number</td><td>Re</td><td>3900</td><td>Target Reynolds number</td></tr>
+<tr><td>Cylinder diameter</td><td>D</td><td>0.001 m</td><td>Geometric/reference length scale</td></tr>
+<tr><td>Free-stream velocity</td><td>U∞</td><td>0.015 m/s</td><td>Reference velocity and inlet velocity</td></tr>
+<tr><td>Kinematic viscosity</td><td>ν</td><td>3.8461538e-09 m²/s</td><td>Use this value in the dimensional PINN physics loss</td></tr>
+<tr><td>Flow type</td><td>—</td><td>2D, incompressible, transient, URANS/RAS SST pilot</td><td>Re200 cases use laminar; Re3900 is kept separate as URANS pilot</td></tr>
+<tr><td>OpenFOAM version</td><td>—</td><td>OpenFOAM 14</td><td>CFD data source</td></tr>
+<tr><td>CFD solver</td><td>—</td><td>foamRun + incompressibleFluid</td><td>Incompressible transient solver</td></tr>
+<tr><td>Actual parallel cores / MPI ranks</td><td>—</td><td>8</td><td>Read from processor directories and foamRun nProcs logs</td></tr>
+<tr><td>Total wall-clock runtime</td><td>—</td><td>1h 33m 38s (5618 s)</td><td>Accumulated ClockTime from log.foamRun* segments</td></tr>
+<tr><td>Compute cost</td><td>—</td><td>12.48 core-h</td><td>MPI ranks × wall-clock time</td></tr>
+<tr><td>Runtime log source</td><td>—</td><td>log.foamRun_recovery_andrew_re3900_20260915_105813</td><td>Used to compute total runtime</td></tr>
+<tr><td>Pressure–velocity coupling</td><td>—</td><td>PIMPLE</td><td>Transient pressure–velocity coupling</td></tr>
+<tr><td>Cylinder centre</td><td>(xc,yc)</td><td>(0,0)</td><td>Cylinder location</td></tr>
+<tr><td>Computational domain</td><td>(x,y)</td><td>approximately −0.1 to 0.1 m</td><td>Cylinder-centred domain family</td></tr>
+<tr><td>Mesh size</td><td>—</td><td>49840 cells</td><td>All cells are hexahedral</td></tr>
+<tr><td>Mesh dimensionality</td><td>—</td><td>2D</td><td>One cell in spanwise direction; front/back are empty/frontAndBack</td></tr>
+<tr><td>Mesh quality</td><td>—</td><td>Mesh OK</td><td>Passed OpenFOAM checkMesh</td></tr>
+<tr><td>Max aspect ratio</td><td>—</td><td>130.95665</td><td>Mesh-quality reference</td></tr>
+<tr><td>Max non-orthogonality</td><td>—</td><td>46.673541°, average 7.9894327°</td><td>Mesh-quality reference</td></tr>
+<tr><td>Max skewness</td><td>—</td><td>0.88936661</td><td>Mesh-quality reference</td></tr>
+<tr><td>Cylinder y+</td><td>—</td><td>min 0.023465, mean 0.170484, max 0.39003</td><td>Computed at latest reconstructed t=8.00004 s; samples=256</td></tr>
+<tr><td>First wall-cell distance</td><td>y1</td><td>min 1.30726e-07, mean 4.44997e-07, max 5.07911e-07 m</td><td>Used in y+ calculation</td></tr>
+<tr><td>Simulation time</td><td>t</td><td>0–8.00004 s</td><td>Full CFD physical interval reached</td></tr>
+<tr><td>Maximum CFD time step</td><td>Δtmax</td><td>0.0002 s</td><td>Maximum allowed time step</td></tr>
+<tr><td>Base CFD time step</td><td>Δt</td><td>0.0002 s</td><td>controlDict deltaT</td></tr>
+<tr><td>Adaptive time stepping</td><td>—</td><td>Yes</td><td>Controlled by Courant number</td></tr>
+<tr><td>Maximum Courant number</td><td>Comax</td><td>0.5</td><td>CFD stability/accuracy control</td></tr>
+<tr><td>PINN inputs</td><td>—</td><td>x, y, t</td><td>Neural-network inputs</td></tr>
+<tr><td>PINN outputs</td><td>—</td><td>u, v, p</td><td>Predicted flow variables</td></tr>
+<tr><td>x,y units</td><td>—</td><td>m</td><td>Dimensional coordinates</td></tr>
+<tr><td>t unit</td><td>—</td><td>s</td><td>Physical time</td></tr>
+<tr><td>u,v units</td><td>—</td><td>m/s</td><td>Velocity components</td></tr>
+<tr><td>Pressure p unit</td><td>—</td><td>m²/s²</td><td>Kinematic pressure, NOT Pa</td></tr>
+<tr><td>Inlet velocity BC</td><td>—</td><td>u=0.015, v=0</td><td>fixedValue</td></tr>
+<tr><td>Outlet velocity BC</td><td>—</td><td>∂U/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>Cylinder velocity BC</td><td>—</td><td>u=v=0</td><td>noSlip wall</td></tr>
+<tr><td>Inlet pressure BC</td><td>—</td><td>∂p/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>Outlet pressure BC</td><td>—</td><td>p=0</td><td>fixedValue pressure reference</td></tr>
+<tr><td>Cylinder pressure BC</td><td>—</td><td>∂p/∂n=0</td><td>zeroGradient</td></tr>
+<tr><td>PINN mapping</td><td>—</td><td>(x,y,t) → (u,v,p)</td><td>Main learning problem</td></tr>
+<tr><td>Dataset file</td><td>—</td><td>Andrew_Ooi_Re3900_xyt_uvp.mat</td><td>Recommended case-specific export name</td></tr>
+<tr><td>Normalisation</td><td>—</td><td>Do not assume nondimensionalised</td><td>Any normalisation must be explicitly defined in PINN code</td></tr>
+<tr><td>Main validation quantities</td><td>—</td><td>CD, CL(t), f, St, u, v, p</td><td>CFD–PINN comparison</td></tr>
+<tr><td>Measured Cd / CLrms / St</td><td>—</td><td>separate pilot / separate pilot / separate pilot</td><td>Late-window Re200 force statistics; Re3900 separate pilot</td></tr>
+</table>
+</body></html>
